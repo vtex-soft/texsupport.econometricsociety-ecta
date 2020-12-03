@@ -20,7 +20,7 @@
 %% (LPPL), version 1.3c or any later version.
 %%
 \NeedsTeXFormat{LaTeX2e}[2000/06/01]
-\ProvidesClass{econsocart}[2020/11/25 v1.2.0, The Econometric Society Journals]
+\ProvidesClass{econsocart}[2020/12/03 v1.2.1, The Econometric Society Journals]
 % 
 \RequirePackage{etoolbox}
 % 
@@ -457,7 +457,6 @@
 % Thanks
 \def\thanks[#1]#2{\thankstext{#1}{#2}}
 %
-% OTRS#112705
 \DeclareRobustCommand\blackwell@fagency[2][]{#2}
 \DeclareRobustCommand\blackwell@fnumber[2][]{#2}
 \long\def\@thankstext[#1]#2#3{%
@@ -482,7 +481,7 @@
         \let\fnumber\blackwell@fnumber
         \protected@xdef\@thanks{%
             \@thanks\protect\support@thefnmark{}%
-            \protect\@footnotetext{#1}%
+            \protect\@footnotetext{\csuse{support@footnotetext@prehook}#1}%
             }%
     \egroup
     }
@@ -547,8 +546,6 @@
 \csuse{econsocart@vtexmth}
 \if@load@amsmath
     \csuse{econsocart@amsmath}
-    \renewcommand{\big}{\bBigg@{1.2}}
-    \renewcommand{\Bigg}{\bBigg@{3.07059}}
     \def\tmp@ecta@or@qe{0}
     \ifecta@layout\edef\tmp@ecta@or@qe{1}\fi
     \ifqe@layout\edef\tmp@ecta@or@qe{1}\fi
@@ -591,7 +588,6 @@
     \else
         \setlength\tabbingsep{0.5em}
     \fi
-    % OTRS#116282
     \if@displaystyle@addons
         \protected\def\frac#1#2{{%
             \mathchoice
@@ -883,7 +879,7 @@
 \def\tabnote@size{\scriptsize}
 \def\firsttabnote@skip{\relax}
 \ifecta@layout
-    \def\tabnote@indent{\parindent=10\p@}% OTRS#15657; was \hskip10pt
+    \def\tabnote@indent{\parindent=10\p@}% was \hskip10pt
 \else
     \def\tabnote@indent{\hskip10\p@}
     \ifnum\jobstart@date@info<20200611%
@@ -921,7 +917,7 @@
 \ifnum\jobstart@date@info>20200211%
     \let\note\undefined
 \fi
-%OTRS132157: added \legend counter to avoid "Multiply-defined labels" message
+%
 \newcounter{econsocart@legend@count}
 \def\legend#1{%
     \stepcounter{econsocart@legend@count}%
@@ -983,7 +979,7 @@
                 }%
                 {\the\textwidth}%
                 {\thepage}%
-                {\rightmark}% OTRS#16847
+                {\rightmark}%
             \hfill\llap{\pagenumber@size\thepage}%
             }%
         }%
@@ -1000,7 +996,7 @@
                 }%
                 {\the\hsize}%
                 {\thepage}%
-                {\rightmark}% OTRS#16847
+                {\rightmark}%
             \enskip\enskip{\pagenumber@size\thepage}%
             }%
         }%
@@ -1423,7 +1419,7 @@
 \def\title@size{%
     \fontsize{13.25}{16}\selectfont
     \bfseries\mathversion{bold}%
-    }% OTRS#14076
+    }%
 \ifecta@layout
     \def\title@size{\normalsize\fontshape{uc}\selectfont}
 \fi
@@ -1899,6 +1895,7 @@
                                     {%
                                         \begingroup\unrestored@protected@xdef\@thefnmark{}\endgroup
                                         \@footnotetext{%
+                                            \csuse{printauthor@footnotetext@prehook}%
                                             \@printauthor{\auto@prnaut@tmp}: 
                                             \printead{\auto@prnead@tmp}%
                                             }%
@@ -2316,7 +2313,7 @@
     }
 \def\@pubmonth{0}
 %
-\AtBeginDocument{\set@pubmonth@by@issue}% OTRS#118367
+\AtBeginDocument{\set@pubmonth@by@issue}%
 %
 \def\thepubmonth{%
     \@ifundefined{month@item@\@pubmonth}%
@@ -2660,8 +2657,8 @@
     \fi
 \fi
 %
+\let\econsocart@setref\@setref
 \ifecta@layout
-    \let\econsocart@setref\@setref
     \let\econsocart@setref@textup\@firstofone
     \def\@setref#1#2#3{%
         \econsocart@setref@textup{\econsocart@setref{#1}{#2}{#3}}%
@@ -2714,10 +2711,6 @@
             \e@cite@color
         \fi
         }
-    \def\autoref{%
-        \econsocart@error{usage of \string\autoref{...}\space is forbidden, 
-            replace it with \string\ref[...]{...}; more info: OTRS\@hashchar111880}%
-        }
 \fi
 %
 \if@xmlfmbm% todo: update for new converter 
@@ -2739,15 +2732,15 @@
         \fi
         }%
 \fi
-% OTRS#15172 (dirty trick though...)
+% dirty trick...
 \def\label@hyperref[#1]#2{% working backref for hyperlinks
     \protected@write\@auxout{}{\string\backrefcite{#1}{\thepage}}%
     \b@cite@color\hyper@linkstart{link}{#1.label}#2\hyper@linkend\e@cite@color
     }
-% OTRS#110040
+%
 \let\geqslant\geq
 \let\leqslant\leq
-% OTRS#114687: \frac, \cases, \(p)matrix arguments should be displaystyle 
+% \frac, \cases, \(p)matrix arguments should be displaystyle 
 % in displaystyle environments (as in ECTA)
 \if@displaystyle@addons% todo: this one is redundant it duplicates amsmath env
     % original macros
