@@ -20,11 +20,13 @@
 %% (LPPL), version 1.3c or any later version.
 %%
 \NeedsTeXFormat{LaTeX2e}[2000/06/01]
-\ProvidesClass{econsocart}[2020/12/03 v1.2.1, The Econometric Society Journals]
+\ProvidesClass{econsocart}[2021/08/06 v1.3.3, The Econometric Society Journals]
 % 
 \RequirePackage{etoolbox}
 % 
 \newif\if@supplement \@supplementfalse
+\newif\if@onlineonly \@onlineonlyfalse
+\newif\if@supplement@onlineonly \@supplement@onlineonlyfalse
 \newif\if@sici \@sicifalse
 \newif\if@biblink \@biblinkfalse
 \newif\ifendbibitem@ \endbibitem@false
@@ -59,6 +61,7 @@
 \newif\if@econsocart@draft \@econsocart@draftfalse
 \newif\if@econsocart@final \@econsocart@finalfalse
 \newif\if@econsocart@numberlines \@econsocart@numberlinesfalse
+\newif\if@econsocart@debug \@econsocart@debugfalse
 % 
 % Class cfg load
 \InputIfFileExists{econsocart-vtex.cfg}{}{\input{econsocart.cfg}}
@@ -69,6 +72,11 @@
 \newcommand\abstractname{}
 \newcommand\acknowledgementsname{Acknowledgements}
 \overfullrule=\z@
+%
+% Debug
+\DeclareOption{debug}{%
+    \@econsocart@debugtrue
+    }
 % 
 % General Options
 \DeclareOption{amsmath}{%
@@ -81,8 +89,17 @@
 \DeclareOption{seceqn}{\@seceqntrue}
 %
 % Specific Options
+\def\thepage@prefix{}
 \DeclareOption{notes}{\AtBeginDocument{\layout@notes}}
-\DeclareOption{supplement}{\global\@supplementtrue}
+\DeclareOption{supplement}{%
+    \global\@supplementtrue
+    \global\@supplement@onlineonlytrue
+    }
+\DeclareOption{onlineonly}{%
+    \global\@onlineonlytrue
+    \global\@supplement@onlineonlytrue
+    \def\thepage@prefix{o}%
+    }
 %
 % Different paper sizes
 \DeclareOption{wwwview}{\@wwwviewabletrue}
@@ -182,6 +199,14 @@
 \ExecuteOptions{twoside,nameyear,amsmath,url,bookmarks,outlines,urllinks,pdflinks,breaklinks}
 \ProcessOptions
 %
+\if@onlineonly
+    \ifecta@layout
+        \def\sup@journal@url{https://www.econometricsociety.org/} 
+    \else
+        \AtBeginDocument{\econsocart@error{onlineonly is not prepared for \@jid}}
+    \fi
+\fi
+%
 \if@displaystyle@addons
     \appto\econsocart@xml@info{\edef\ds@on@off{1}}
 \else
@@ -189,6 +214,11 @@
 \fi
 %
 \csuse{econsocart@fileinfo}
+%
+\let\debug@wlog\@gobble
+\if@econsocart@debug
+    \let\debug@wlog\wlog
+\fi
 %
 % FONTS
 \def\@xpt{10.08}
@@ -755,8 +785,6 @@
 % BIBLIOGRAPHY
 \csuse{econsocart@bibliography}
 %
-\csuse{econsocart@numeqnrefcheck}
-%
 \marginparwidth=120\p@
 \marginparsep=25\p@
 % 
@@ -848,6 +876,9 @@
 \else
     \ifecta@layout
     \else
+        \ifnum\jobstart@date@info>20210806\relax
+            \def\tablecaption@shape{\centering}
+        \fi
         \long\def\@maketablecaption#1#2{%
             \vskip\tablecaption@skip
             \tablecaption@shape
@@ -863,11 +894,26 @@
                     #2%
                 \fi
                 }%
-            \ifdim\wd\@tempboxa>\hsize
-                \longfigurecaption@style
-                \unhbox\@tempboxa\par
+            \ifnum\jobstart@date@info>20210806\relax
+                \ifdim\wd\@tempboxa>\tablewidth
+                    \parbox[t]{\tablewidth}{%
+                        \tablecaption@size{\tablename@size #1}\tablename@skip
+                        \if@contcaption
+                            \contcaptionbraces@left\contcaption@shape{#2}\contcaptionbraces@right
+                        \else
+                            #2%
+                        \fi\par
+                        }%
+                \else
+                    \tablecaption@fmt{\box\@tempboxa}\par
+                \fi
             \else
-                \tablecaption@fmt{\box\@tempboxa}\par
+                \ifdim\wd\@tempboxa>\hsize
+                    \longfigurecaption@style
+                    \unhbox\@tempboxa\par
+                \else
+                    \tablecaption@fmt{\box\@tempboxa}\par
+                \fi
             \fi
             }
     \fi
@@ -878,6 +924,7 @@
 \def\thetabnote{\@alph\c@tabnote}
 \def\tabnote@size{\scriptsize}
 \def\firsttabnote@skip{\relax}
+\def\legend@tabnotemark@fmt#1{\textit{#1}:\hskip5\p@}
 \ifecta@layout
     \def\tabnote@indent{\parindent=10\p@}% was \hskip10pt
 \else
@@ -885,7 +932,6 @@
     \ifnum\jobstart@date@info<20200611%
         \gappto\vtexfltpdf@hypermark{\def\tabnotemark@fmt#1{\textit{#1}:\hskip5\p@}}
     \else
-        \def\legend@tabnotemark@fmt#1{\textit{#1}:\hskip5\p@}
         \gappto\vtexfltpdf@hypermark{\def\tabnotemark@fmt#1{\textsuperscript{#1}}}
     \fi
 \fi
@@ -893,7 +939,7 @@
     \global\let\sv@tabnotemark@fmt\tabnotemark@fmt
     \gdef\tabnotemark@fmt##1{%
         \ifecta@layout
-            \sv@tabnotemark@fmt{Note}%
+            \legend@tabnotemark@fmt{Note}%
         \else
             \ifnum\jobstart@date@info<20200611%
                 \sv@tabnotemark@fmt{Note}%
@@ -967,20 +1013,20 @@
         \let\@evenfoot\@empty
         \def\@evenhead{%
             \runninghead@size
-            \rlap{\pagenumber@size\thepage}\hfill
+            \rlap{\pagenumber@size\thepage@prefix\thepage}\hfill
             \leftmark\hfill
             }%
         \def\@oddhead{%
             \runninghead@size\hfill
             \limited@wd@runtitle{%
-                \pagenumber@size\sprintf@four@nines{\thepage}%
+                \pagenumber@size\thepage@prefix\sprintf@four@nines{\thepage}%
                 \hskip.5em\runninghead@size\rightmark\pagenumber@size
-                \hskip.5em\sprintf@four@nines{\thepage}%
+                \hskip.5em\thepage@prefix\sprintf@four@nines{\thepage}%
                 }%
                 {\the\textwidth}%
                 {\thepage}%
                 {\rightmark}%
-            \hfill\llap{\pagenumber@size\thepage}%
+            \hfill\llap{\pagenumber@size\thepage@prefix\thepage}%
             }%
         }%
 \else
@@ -1394,9 +1440,13 @@
     \def\history@skip{8\p@ \@plus 4\p@ \@minus 2\p@}
     \def\frontmatter@cmd{%
         \if@open@access
-            \ifcsundef{econsocart@too@long@open@acces@text}%
+            \ifcsundef{econsocart@too@long@open@access@text}%
                 {}%
-                {\vskip-\dimexpr\econsocart@too@long@open@acces@text/2\relax}%
+                {%
+                    \xdef\econsocart@too@long@open@access@corr{\the\dimexpr\econsocart@too@long@open@access@corr+20\p@\relax}%
+                    \econsocart@calc@oa@dim(\econsocart@too@long@open@access@text/\econsocart@too@long@open@access@spare)*20\p@\@nil
+                    \vskip-\econsocart@temp@oa@skip
+                }%
         \fi
         \vskip20\p@ \@plus 3\p@ \@minus 3\p@
         }
@@ -1472,8 +1522,12 @@
     \fi
     }
 %
-\if@supplement
-    \AtBeginDocument{\mdforvkt{main-article-info}{articletype}{supplement}}
+\if@supplement@onlineonly
+    \if@supplement
+        \AtBeginDocument{\mdforvkt{main-article-info}{articletype}{supplement}}
+    \else
+        \AtBeginDocument{\mdforvkt{main-article-info}{articletype}{onlineonly}}
+    \fi
     \ifecta@layout
         \def\copyright@text{\hfill\url@fmt{}{\itshape}{\sup@journal}{\sup@journal@url}\hfill}
     \else
@@ -1525,6 +1579,24 @@
         provided the original work is properly cited.%
         }
     \if@open@access
+        \def\econsocart@too@long@open@access@corr{0pt}
+        \def\econsocart@calc@oa@dim(#1/#2)*#3\@nil{{%
+            \@tempdima=#1\relax
+            \@tempdimb=#2\relax
+            \@tempdimc=#3\relax
+            \debug@wlog{econsocart@calc@oa@dim input: (\the\@tempdima/\the\@tempdimb)*\the\@tempdimc}%
+            \@tempcnta=\@tempdima
+            \@settopoint\@tempdimb
+            \edef\@tempdimb@nopt{\strip@pt\@tempdimb}%
+            \edef\@tempdima@tosp{\the\@tempcnta sp}%
+            \debug@wlog{econsocart@calc@oa@dim 1st arg to sp: \@tempdima@tosp}%
+            \debug@wlog{econsocart@calc@oa@dim 2nd arg to integer without pt: \@tempdimb@nopt}%
+            \edef\@tempratio{\strip@pt\dimexpr\@tempdima@tosp/\@tempdimb@nopt\relax}%
+            \debug@wlog{econsocart@calc@oa@dim 1st arg divided by 2nd and pt removed: \@tempdima@tosp/\@tempdimb@nopt=\@tempratio}%
+            \@tempdima=\@tempratio\@tempdimc
+            \xdef\econsocart@temp@oa@skip{\the\@tempdima}%
+            \debug@wlog{econsocart@calc@oa@dim 3rd arg ratio multiplied by ratio: \the\@tempdimc*\@tempratio=\econsocart@temp@oa@skip}%
+            }}
         \def\copyrightline@text{%
             \setbox\@tempboxa\vbox{{%
                 \parindent=\z@
@@ -1553,15 +1625,24 @@
                     \csuse{license@\license@type @licencetypetext}%
                 \egroup
                 }}%
-            \ifdim\ht\@tempboxa>\dimexpr4\baselineskip\relax
+            \ifdim\ht\@tempboxa>\dimexpr3\baselineskip\relax
                 \ifdim\ht\@tempboxa>\dimexpr5\baselineskip\relax
                     \econsocart@error{open access text in copyright is longer than 5 lines, contact TeX support}%
                 \fi
-                \immediate\write\@auxout{\string\xdef\string\econsocart@too@long@open@acces@text
-                    {\the\dimexpr\baselineskip\relax}}%
-                \raise\dimexpr5\p@+\baselineskip\relax\vtop{\unvbox\@tempboxa}%
+                \edef\tmp@oa@corr{\the\dimexpr\baselineskip\relax}%
+                \ifdim\ht\@tempboxa>\dimexpr4\baselineskip\relax
+                    \edef\tmp@oa@corr{\the\dimexpr\baselineskip*2\relax}%
+                \fi
+                \immediate\write\@auxout{\string\xdef\string\econsocart@too@long@open@access@text{\tmp@oa@corr}}%
+                \ifdim\econsocart@too@long@open@access@corr>\z@
+                    \immediate\write\@auxout{\string\xdef\string\econsocart@too@long@open@access@spare{\econsocart@too@long@open@access@corr}}%
+                \else
+                    \immediate\write\@auxout{\string\xdef\string\econsocart@too@long@open@access@spare{\the\maxdimen}}%
+                \fi
+                \edef\tmp@oa@corr{\the\dimexpr6.62\p@+\tmp@oa@corr\relax}%
+                \raisebox{\tmp@oa@corr}[\z@][\z@]{\vtop{\unvbox\@tempboxa}}%
             \else
-                \raise5\p@\vtop{\unvbox\@tempboxa}%
+                \raisebox{6.62\p@}[\z@][\z@]{\vtop{\unvbox\@tempboxa}}%
             \fi
             }
     \else
@@ -1574,9 +1655,9 @@
             }
     \fi
     \def\author@prefix{%
-        \ifcsundef{econsocart@too@long@open@acces@text}%
+        \ifcsundef{econsocart@too@long@open@access@text}%
             {}%
-            {\enlargethispage{-\econsocart@too@long@open@acces@text}}%
+            {\enlargethispage{-\econsocart@too@long@open@access@text}}%
         }
 \else
     \def\copyrightline@text{%
@@ -1681,7 +1762,7 @@
 \def\endfrontmatter{%
     \global\@topnum=\z@
     \set@pagerange
-    \if@supplement
+    \if@supplement@onlineonly
         \gdef\@runjournal{\sup@journal}%
     \else
         \gdef\@runjournal{\@journal\ \@volume\ (\the\@pubyear)}%
@@ -1774,8 +1855,8 @@
     \mdforvkt{main-article-info}{issue}{\@issue}%
     \mdforvkt{main-article-info}{pubyear}{\the\@pubyear}%
     \mdforvkt{main-article-info}{copyear}{\the\@copyear}%
-    \mdforvkt{main-article-info}{firstpage}{\@firstpage}%
-    \mdforvkt{main-article-info}{lastpage}{\@lastpage}%
+    \mdforvkt{main-article-info}{firstpage}{\thepage@prefix\@firstpage}%
+    \mdforvkt{main-article-info}{lastpage}{\thepage@prefix\@lastpage}%
     \hy@endfrontmatter
     \global\mathsurround=\sv@mathsurround
     \global\let\@thanks\@empty
@@ -1915,7 +1996,7 @@
         \fi
         \ifcsundef{author@thanksref@used}%
             {%
-                \if@supplement
+                \if@supplement@onlineonly
                 \else
                     \ifcsundef{layout@notes@used}%
                         {%
@@ -2253,7 +2334,18 @@
 % affiliation
 \def\affiliation{\@ifnextchar[{\affiliation@fmt}{\affiliation@fmt[default]}}
 %
-\long\def\aff@fmt#1{\bgroup\footnotesize\upshape#1\par\egroup\vskip\baselineskip}
+\long\def\aff@fmt#1{\bgroup\footnotesize\upshape#1\par\egroup
+    \if@open@access
+        \ifcsundef{econsocart@too@long@open@access@text}%
+            {}%
+            {%
+                \xdef\econsocart@too@long@open@access@corr{\the\dimexpr\econsocart@too@long@open@access@corr+\baselineskip\relax}%
+                \econsocart@calc@oa@dim(\econsocart@too@long@open@access@text/\econsocart@too@long@open@access@spare)*\baselineskip\@nil
+                \vskip-\econsocart@temp@oa@skip
+            }%
+    \fi
+    \vskip\baselineskip
+    }
 \ifecta@layout
     \def\affiliation@fmt[#1]#2{%
         \@for\tmp@aff@id:=#1\do{%
@@ -2296,9 +2388,13 @@
     \else
         \if@open@access
             \ifecta@layout
-                \ifcsundef{econsocart@too@long@open@acces@text}%
+                \ifcsundef{econsocart@too@long@open@access@text}%
                     {}%
-                    {\vskip-\dimexpr\econsocart@too@long@open@acces@text/2\relax}%
+                    {%
+                        \xdef\econsocart@too@long@open@access@corr{\the\dimexpr\econsocart@too@long@open@access@corr+\abstract@skip\relax}%
+                        \econsocart@calc@oa@dim(\econsocart@too@long@open@access@text/\econsocart@too@long@open@access@spare)*\abstract@skip\@nil
+                        \vskip-\econsocart@temp@oa@skip
+                    }%
             \fi
         \fi
         \vskip\abstract@skip
@@ -2538,6 +2634,19 @@
 \def\keyword@fmt{%
     \ifvoid\keyword@box
     \else
+        \if@open@access
+            \ifecta@layout
+                \ifcsundef{econsocart@too@long@open@access@text}%
+                    {}%
+                    {%
+                        % keywords are close too abstract so only 30% of spare space is used
+                        \@tempskipa=\keyword@skip
+                        \xdef\econsocart@too@long@open@access@corr{\the\dimexpr\econsocart@too@long@open@access@corr+0.5\@tempskipa\relax}%
+                        \econsocart@calc@oa@dim(\econsocart@too@long@open@access@text/\econsocart@too@long@open@access@spare)*0.5\@tempskipa\@nil
+                        \vskip-\econsocart@temp@oa@skip
+                    }%
+            \fi
+        \fi
         \vskip\keyword@skip
         \unvbox\keyword@box
     \fi

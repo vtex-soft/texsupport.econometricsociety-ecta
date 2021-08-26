@@ -1,4 +1,4 @@
-% use option [draft] for initial mission
+% use option [draft] for initial submission
 %            [final] for the prepublication
 \documentclass[ecta,nameyear,draft]{econsocart}
 %
@@ -30,9 +30,9 @@
 \newtheorem*{fact}{Fact}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                          %%
-%% For Definition, Example, ,         %%
+%% For Definition, Example, Remark,         %%
 %% Notation, Property                       %%
-%% use \theoremstyle{}                %%
+%% use \theoremstyle{remark}                %%
 %%                                          %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \theoremstyle{remark}
@@ -103,7 +103,7 @@ as much as possible.
 
 \section{Introduction}
 
-\caps{This template helps you} to create a properly formatted \LaTeXe\ manuscript. Note that the first few words in the first paragraph should be in small caps.
+This template helps you to create a properly formatted \LaTeXe\ manuscript.
 Prepare your paper in the same style as used in this sample .pdf file.
 Try to avoid excessive use of italics and bold face.
 Please do not use any \LaTeXe\ or \TeX\ commands that affect the layout
@@ -324,11 +324,11 @@ and also in Table~\ref{parset}.
 Sample of cross-reference to figure: Figure~\ref{penG} shows that it is not easy to get something on paper.
 
 \begin{table*}
-\caption{The Spherical Case ($I_1=0$, $I_2=0$)\tabnoteref[a]{tab1}}
+\caption{The spherical case ($I_1=0$, $I_2=0$).}
 \label{sphericcase}
 \begin{tabular}{@{}lrrrrc@{}@{}}
 \hline
-Equil. points
+Equil. Points
 & \multicolumn{1}{c}{$x$}
 & \multicolumn{1}{c}{$y$}
 & \multicolumn{1}{c}{$z$}
@@ -348,13 +348,14 @@ $L_{10}$ & 1.472523232    & 1.393484549    & $-$0.083801333 & 6.733436505    & U
 $L_{11}$ & 1.472523232    & $-$1.393484549 & $-$0.083801333 & 6.733436505    & U \\
 \hline
 \end{tabular}
-\tabnotetext[a]{tab1}{This is how table note should be presented.
+\legend{This is how table note should be presented.
 Please do not use asterisks or bold face to denote statistical significance.
 We encourage authors to report standard errors and coverage sets or confidence intervals.}
+
 \end{table*}
 
 \begin{table}
-\caption{Sample Posterior Estimates for Each Model}
+\caption{Sample posterior estimates for each model.}
 \label{parset}
 %
 \begin{tabular}{@{}lcrcrrr@{}@{}}
@@ -364,7 +365,7 @@ We encourage authors to report standard errors and coverage sets or confidence i
 Model
 & Parameter
 & \multicolumn{1}{c}{Mean}
-& Std. dev.
+& Std. Dev.
 & \multicolumn{1}{c}{2.5\%}
 & \multicolumn{1}{c}{50\%}
 & \multicolumn{1}{c@{}}{97.5\%} \\
