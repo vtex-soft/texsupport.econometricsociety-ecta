@@ -20,7 +20,7 @@
 %% (LPPL), version 1.3c or any later version.
 %%
 \NeedsTeXFormat{LaTeX2e}[2000/06/01]
-\ProvidesClass{econsocart}[2021/08/06 v1.3.3, The Econometric Society Journals]
+\ProvidesClass{econsocart}[2021/09/21 v1.3.5, The Econometric Society Journals]
 % 
 \RequirePackage{etoolbox}
 % 
@@ -1037,7 +1037,13 @@
         \def\@oddhead{%
             \runninghead@size
             \limited@wd@runtitle{%
-                \runninghead@size\@runjournal\enskip\enskip\@runtitle
+                \runninghead@size
+                \if@supplement@onlineonly
+                    \@runjournal
+                \else
+                    \@journal\ \sprintf@with@nines{2}{\@volume}\ (\the\@pubyear)%
+                \fi
+                \enskip\enskip\@runtitle
                 \enskip\enskip\pagenumber@size\sprintf@four@nines{\thepage}%
                 }%
                 {\the\hsize}%
@@ -2773,53 +2779,61 @@
         \econsocart@setref@textup{\econsocart@setref{#1}{#2}{#3}}%
         }
 \else
-    \def\HyPsd@ref[#1]#2{\HyPsd@@ref[#1]#2*\END}
-    \def\HyPsd@@ref[#1]#2*#3\END{%
-        \ifx\\#3\\%
-            \HyPsd@@@ref[#1]{#2}%
-        \else
-            \expandafter\HyPsd@@@ref
+    \ifnum\jobstart@date@info>20210921%
+        \ifqe@layout
+            \def\@setref#1#2#3{%
+                \textup{\econsocart@setref{#1}{#2}{#3}}%
+                }
         \fi
-        }%
-    \def\HyPsd@@@ref[#1]#2{%
-        \expandafter\ifx\csname r@#2\endcsname\relax
-            ??%
-        \else
-            \ifx.#1.\else#1 \fi\expandafter\expandafter\expandafter\@car\csname r@#2\endcsname\@nil
-        \fi
-    }
-    \def\ref{\@ifnextchar[{\te@ref}{\te@ref[]}}
-    \let\ref@addon\@empty
-    \def\te@ref[#1]#2{%
-        \ifx.#1.\else
-            \def\ref@addon{#1~}%
-        \fi
-        \expandafter\@setref\csname r@#2\endcsname\@firstoftwo{#2}%
+    \else
+        \def\HyPsd@ref[#1]#2{\HyPsd@@ref[#1]#2*\END}
+        \def\HyPsd@@ref[#1]#2*#3\END{%
+            \ifx\\#3\\%
+                \HyPsd@@@ref[#1]{#2}%
+            \else
+                \expandafter\HyPsd@@@ref
+            \fi
+            }%
+        \def\HyPsd@@@ref[#1]#2{%
+            \expandafter\ifx\csname r@#2\endcsname\relax
+                ??%
+            \else
+                \ifx.#1.\else#1 \fi\expandafter\expandafter\expandafter\@car\csname r@#2\endcsname\@nil
+            \fi
+        }
+        \def\ref{\@ifnextchar[{\te@ref}{\te@ref[]}}
         \let\ref@addon\@empty
-        }
-    \def\pageref{\@ifnextchar[{\te@pageref}{\te@pageref[]}}
-    \def\te@pageref[#1]#2{%
-        \ifx.#1.\else
-            \def\ref@addon{#1~}%
-        \fi
-        \expandafter\@setref\csname r@#2\endcsname\@secondoftwo{#2}%
-        \let\ref@addon\@empty
-        }
-    \def\@setref#1#2#3{%
-        \ifx#1\relax
-            \protect\G@refundefinedtrue
-            \nfss@text{\reset@font\bfseries ??}%
-            \@latex@warning{Reference `#3' on page \thepage \space undefined}%
-        \else
-            \b@cite@color
-            \hyper@linkstart{link}{#3.label}%
-            \color@setgroup
-                \ifqe@layout\upshape\fi\ref@addon\expandafter#2#1\null
-            \color@endgroup
-            \hyper@linkend
-            \e@cite@color
-        \fi
-        }
+        \def\te@ref[#1]#2{%
+            \ifx.#1.\else
+                \def\ref@addon{#1~}%
+            \fi
+            \expandafter\@setref\csname r@#2\endcsname\@firstoftwo{#2}%
+            \let\ref@addon\@empty
+            }
+        \def\pageref{\@ifnextchar[{\te@pageref}{\te@pageref[]}}
+        \def\te@pageref[#1]#2{%
+            \ifx.#1.\else
+                \def\ref@addon{#1~}%
+            \fi
+            \expandafter\@setref\csname r@#2\endcsname\@secondoftwo{#2}%
+            \let\ref@addon\@empty
+            }
+        \def\@setref#1#2#3{%
+            \ifx#1\relax
+                \protect\G@refundefinedtrue
+                \nfss@text{\reset@font\bfseries ??}%
+                \@latex@warning{Reference `#3' on page \thepage \space undefined}%
+            \else
+                \b@cite@color
+                \hyper@linkstart{link}{#3.label}%
+                \color@setgroup
+                    \ifqe@layout\upshape\fi\ref@addon\expandafter#2#1\null
+                \color@endgroup
+                \hyper@linkend
+                \e@cite@color
+            \fi
+            }
+    \fi
 \fi
 %
 \if@xmlfmbm% todo: update for new converter 
