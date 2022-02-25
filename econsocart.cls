@@ -20,7 +20,7 @@
 %% (LPPL), version 1.3c or any later version.
 %%
 \NeedsTeXFormat{LaTeX2e}[2000/06/01]
-\ProvidesClass{econsocart}[2022/02/20 v1.0.2, The Econometric Society Journals]
+\ProvidesClass{econsocart}[2022/02/25 v1.4.0, The Econometric Society Journals]
 % 
 \RequirePackage{etoolbox}
 % 
