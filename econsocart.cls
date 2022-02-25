@@ -20,7 +20,7 @@
 %% (LPPL), version 1.3c or any later version.
 %%
 \NeedsTeXFormat{LaTeX2e}[2000/06/01]
-\ProvidesClass{econsocart}[2021/09/21 v1.3.5, The Econometric Society Journals]
+\ProvidesClass{econsocart}[2022/02/20 v1.0.2, The Econometric Society Journals]
 % 
 \RequirePackage{etoolbox}
 % 
@@ -530,10 +530,8 @@
     \def\list@parindent{10\p@}
     \def\longlist@topsep{\z@}
     \renewcommand\labellonglist{(\thelonglist)}
-    \ifnum\jobstart@date@info>20200601
-        \def\labelenumii{(\theenumii)}
-        \def\itemize@indent{\list@parindent}
-    \fi
+    \def\labelenumii{(\theenumii)}
+    \def\itemize@indent{\list@parindent}
 \else
     \def\enumerate@indent{\list@parindent}
     \def\enumerate@firsttopsep{.55\baselineskip}
@@ -547,10 +545,8 @@
     \def\longlist@topsep{.55\baselineskip}%
     \def\longlist@hook{\itemsep=.275\baselineskip}%
     \renewcommand\labellonglist{(\thelonglist)}
-    \ifnum\jobstart@date@info>20200601
-        \def\labelenumii{(\theenumii)}
-        \def\itemize@indent{\list@parindent}
-    \fi
+    \def\labelenumii{(\theenumii)}
+    \def\itemize@indent{\list@parindent}
 \fi
 %
 % quotation
@@ -691,12 +687,17 @@
 \def\econsocart@thm@indent{\z@}
 \ifecta@layout
     \def\econsocart@thm@indent{\parindent}
-    \def\thm@notefont@pre{\unskip\kern0.02em---\kern0.02em\bgroup\normalfont}
-    \def\thm@notefont@post{\egroup}
-    \patchcmd\swappedhead{(}{\thm@notefont@pre}{}{\thm@notefont@patch@error\swappedhead}
-    \patchcmd\swappedhead{)}{\thm@notefont@post}{}{\thm@notefont@patch@error\swappedhead}
-    \patchcmd\thmhead@plain{(}{\thm@notefont@pre}{}{\thm@notefont@patch@error\thmhead@plain}
-    \patchcmd\thmhead@plain{)}{\thm@notefont@post}{}{\thm@notefont@patch@error\thmhead@plain}
+    \def\thmnote@pre{\bgroup\normalfont\unskip\kern.07em---\kern.07em}
+    \def\thmnote@post{\egroup}
+    \def\thmnumber@pre{\bgroup\normalfont}
+    \def\thmnumber@post{\egroup}
+    \def\thmnumber@space{\space\kern0.02em}
+\else
+    \def\thmnote@pre{\bgroup\normalfont(}
+    \def\thmnote@post{)\egroup}
+    \def\thmnumber@pre{}
+    \def\thmnumber@post{}
+    \def\thmnumber@space{ }
 \fi
 \newtheoremstyle{plain}%
     {\medskipamount}%
@@ -719,7 +720,11 @@
     {\scshape}%
     {\ifecta@layout:\else.\fi\csuse{corthmlist@head@pos}}%
     {\thm@space@after}%
-    {}
+    {%
+        \thmname{#1}%
+        \thmnumber{\thmnumber@pre\@ifnotempty{#1}{\thmnumber@space}\@upn{#2}\thmnumber@post}%
+        \thmnote{ \thmnote@pre #3\thmnote@post}%
+    }%
 \newtheoremstyle{remark}%
     {\medskipamount}%
     {\medskipamount}%
@@ -728,7 +733,11 @@
     {\scshape}%
     {\ifecta@layout:\else.\fi\csuse{corthmlist@head@pos}}%
     {\thm@space@after}%
-    {}
+    {%
+        \thmname{#1}%
+        \thmnumber{\thmnumber@pre\@ifnotempty{#1}{\thmnumber@space}\@upn{#2}\thmnumber@post}%
+        \thmnote{ \thmnote@pre #3\thmnote@post}%
+    }%
 \ifte@layout
     \def\econsocart@currenvir@example{example}
     \def\thm@end@example@symbol{\lozenge}
@@ -876,9 +885,7 @@
 \else
     \ifecta@layout
     \else
-        \ifnum\jobstart@date@info>20210806\relax
-            \def\tablecaption@shape{\centering}
-        \fi
+        \def\tablecaption@shape{\centering}
         \long\def\@maketablecaption#1#2{%
             \vskip\tablecaption@skip
             \tablecaption@shape
@@ -894,26 +901,17 @@
                     #2%
                 \fi
                 }%
-            \ifnum\jobstart@date@info>20210806\relax
-                \ifdim\wd\@tempboxa>\tablewidth
-                    \parbox[t]{\tablewidth}{%
-                        \tablecaption@size{\tablename@size #1}\tablename@skip
-                        \if@contcaption
-                            \contcaptionbraces@left\contcaption@shape{#2}\contcaptionbraces@right
-                        \else
-                            #2%
-                        \fi\par
-                        }%
-                \else
-                    \tablecaption@fmt{\box\@tempboxa}\par
-                \fi
+            \ifdim\wd\@tempboxa>\tablewidth
+                \parbox[t]{\tablewidth}{%
+                    \tablecaption@size{\tablename@size #1}\tablename@skip
+                    \if@contcaption
+                        \contcaptionbraces@left\contcaption@shape{#2}\contcaptionbraces@right
+                    \else
+                        #2%
+                    \fi\par
+                    }%
             \else
-                \ifdim\wd\@tempboxa>\hsize
-                    \longfigurecaption@style
-                    \unhbox\@tempboxa\par
-                \else
-                    \tablecaption@fmt{\box\@tempboxa}\par
-                \fi
+                \tablecaption@fmt{\box\@tempboxa}\par
             \fi
             }
     \fi
@@ -926,14 +924,10 @@
 \def\firsttabnote@skip{\relax}
 \def\legend@tabnotemark@fmt#1{\textit{#1}:\hskip5\p@}
 \ifecta@layout
-    \def\tabnote@indent{\parindent=10\p@}% was \hskip10pt
+    \def\tabnote@indent{\parindent=10\p@}% was \hskip10\p@
 \else
     \def\tabnote@indent{\hskip10\p@}
-    \ifnum\jobstart@date@info<20200611%
-        \gappto\vtexfltpdf@hypermark{\def\tabnotemark@fmt#1{\textit{#1}:\hskip5\p@}}
-    \else
-        \gappto\vtexfltpdf@hypermark{\def\tabnotemark@fmt#1{\textsuperscript{#1}}}
-    \fi
+    \gappto\vtexfltpdf@hypermark{\def\tabnotemark@fmt#1{\textsuperscript{#1}}}
 \fi
 \def\notabnotemark{%
     \global\let\sv@tabnotemark@fmt\tabnotemark@fmt
@@ -941,11 +935,7 @@
         \ifecta@layout
             \legend@tabnotemark@fmt{Note}%
         \else
-            \ifnum\jobstart@date@info<20200611%
-                \sv@tabnotemark@fmt{Note}%
-            \else
-                \legend@tabnotemark@fmt{Note}%
-            \fi
+            \legend@tabnotemark@fmt{Note}%
         \fi
         \global\let\tabnotemark@fmt\sv@tabnotemark@fmt
         }%
@@ -960,9 +950,7 @@
 %
 \long\def\note#1{{\nomark@tabnotetext{\textit{Note}:\hskip5\p@ #1}}}
 %
-\ifnum\jobstart@date@info>20200211%
-    \let\note\undefined
-\fi
+\let\note\undefined
 %
 \newcounter{econsocart@legend@count}
 \def\legend#1{%
@@ -976,13 +964,11 @@
     \vtop to\z@{ }\par
     }
 %
-\ifnum\jobstart@date@info>20200320
-    \let\econsocart@save@tabnotetext\@tabnotetext
-    \long\def\@tabnotetext[#1]#2#3{%
-        \endgraf
-        \econsocart@save@tabnotetext[#1]{#2}{#3}%
-        }
-\fi
+\let\econsocart@save@tabnotetext\@tabnotetext
+\long\def\@tabnotetext[#1]#2#3{%
+    \endgraf
+    \econsocart@save@tabnotetext[#1]{#2}{#3}%
+    }
 %
 \AtBeginDocument{% todo: check if these hooks are needed
     \let\tabular@cell@hook\relax
@@ -1354,26 +1340,12 @@
 %
 \def\@appsectionstar*#1{%
     \csedef{app*star*section}{1}%
-    \ifecta@layout
-        \ifnum\jobstart@date@info>20181120%
-            \def\section@size{\scshape}%
-        \else
-            \def\section@size{\fontshape{uc}\selectfont}%
-        \fi
+    \def\section@size{\scshape}%
+    \ifx.#1.%
+        \old@section*{\appendixname@uc{\appendixname}}%
     \else
-        \def\section@size{\scshape}%
-    \fi
-    \ifnum\jobstart@date@info>20181120%
-        \ifx.#1.%
-            \old@section*{\appendixname@uc{\appendixname}}%
-        \else
-            \ifnum\jobstart@date@info>20181120%
-                \def\section@numbersep{:}%
-            \fi
-            \old@section*{\appendixname@uc{\appendixname}\section@numbersep\enspace #1}%
-        \fi
-    \else
-        \old@section*{#1}%
+        \def\section@numbersep{:}%
+        \old@section*{\appendixname@uc{\appendixname}\section@numbersep\enspace #1}%
     \fi
     \ifecta@layout
         \def\section@size{\scshape}%
@@ -1400,22 +1372,10 @@
 %
 \def\@appsectionnostar#1{%
     \ifx.#1.%
-        \ifecta@layout
-            \def\section@numbersep{}%
-        \else
-            \ifnum\jobstart@date@info>20181120%
-                \def\section@numbersep{}%
-            \fi
-        \fi
+        \def\section@numbersep{}%
         \old@section[\@appendixname\ \@thesection]{}%
     \else
-        \ifecta@layout
-            \def\section@numbersep{:}%
-        \else
-            \ifnum\jobstart@date@info>20181120%
-                \def\section@numbersep{:}%
-            \fi
-        \fi
+        \def\section@numbersep{:}%
         \def\@argi{#1}%
         \old@section[\@appendixname\ \@thesection\ \@argi]{#1}%
     \fi
@@ -1449,8 +1409,11 @@
             \ifcsundef{econsocart@too@long@open@access@text}%
                 {}%
                 {%
-                    \xdef\econsocart@too@long@open@access@corr{\the\dimexpr\econsocart@too@long@open@access@corr+20\p@\relax}%
-                    \econsocart@calc@oa@dim(\econsocart@too@long@open@access@text/\econsocart@too@long@open@access@spare)*20\p@\@nil
+                    \xdef\econsocart@too@long@open@access@corr{%
+                        \the\dimexpr\econsocart@too@long@open@access@corr+20\p@\relax
+                        }%
+                    \econsocart@calc@oa@dim(\econsocart@too@long@open@access@text/%
+                        \econsocart@too@long@open@access@spare)*20\p@\@nil
                     \vskip-\econsocart@temp@oa@skip
                 }%
         \fi
@@ -1484,7 +1447,7 @@
     \fontfamily{\econsocart@putx}\fontseries{m}\fontshape{sc}\selectfont
     }
 \ifecta@layout
-    \def\author@size{\normalsize\scshape}
+    \def\author@size{\normalsize}
 \fi
 \def\address@size{\normalsize\itshape}
 \def\affiliation@size{\normalsize\itshape}
@@ -1584,13 +1547,18 @@
         which permits use, distribution and reproduction in any medium, 
         provided the original work is properly cited.%
         }
+    \csdef{copyright@U.S. Government work@holdertext}{Published \the\@copyear. 
+        This article is a U.S. Government work and 
+        is in the public domain in the USA.%
+        }
     \if@open@access
         \def\econsocart@too@long@open@access@corr{0pt}
         \def\econsocart@calc@oa@dim(#1/#2)*#3\@nil{{%
             \@tempdima=#1\relax
             \@tempdimb=#2\relax
             \@tempdimc=#3\relax
-            \debug@wlog{econsocart@calc@oa@dim input: (\the\@tempdima/\the\@tempdimb)*\the\@tempdimc}%
+            \debug@wlog{econsocart@calc@oa@dim input: 
+                (\the\@tempdima/\the\@tempdimb)*\the\@tempdimc}%
             \@tempcnta=\@tempdima
             \@settopoint\@tempdimb
             \edef\@tempdimb@nopt{\strip@pt\@tempdimb}%
@@ -1598,18 +1566,35 @@
             \debug@wlog{econsocart@calc@oa@dim 1st arg to sp: \@tempdima@tosp}%
             \debug@wlog{econsocart@calc@oa@dim 2nd arg to integer without pt: \@tempdimb@nopt}%
             \edef\@tempratio{\strip@pt\dimexpr\@tempdima@tosp/\@tempdimb@nopt\relax}%
-            \debug@wlog{econsocart@calc@oa@dim 1st arg divided by 2nd and pt removed: \@tempdima@tosp/\@tempdimb@nopt=\@tempratio}%
+            \debug@wlog{econsocart@calc@oa@dim 1st arg divided by 2nd and pt removed: 
+                \@tempdima@tosp/\@tempdimb@nopt=\@tempratio}%
             \@tempdima=\@tempratio\@tempdimc
             \xdef\econsocart@temp@oa@skip{\the\@tempdima}%
-            \debug@wlog{econsocart@calc@oa@dim 3rd arg ratio multiplied by ratio: \the\@tempdimc*\@tempratio=\econsocart@temp@oa@skip}%
+            \debug@wlog{econsocart@calc@oa@dim 3rd arg ratio multiplied by ratio: 
+                \the\@tempdimc*\@tempratio=\econsocart@temp@oa@skip}%
             }}
         \def\copyrightline@text{%
             \setbox\@tempboxa\vbox{{%
                 \parindent=\z@
                 \nohyphen
                 \spaceskip=\fontdimen2\font \@plus 1\p@ \@minus 1\p@
-                \textcopyright\ \the\@copyear\ The Author\ifnum\c@author>1s\fi.%
-                \ecta@oa@published@text.
+                \ifcsundef{copyright@holder}%
+                    {%
+                        \textcopyright\ \the\@copyear\ The Author\ifnum\c@author>1s\fi.%
+                        \ecta@oa@published@text.
+                    }%
+                    {%
+                        \ifcsundef{copyright@\copyright@holder @holdertext}%
+                            {%
+                                \vtxClassError{econsocart}%
+                                    {%
+                                        There is no text for copyright holder "\copyright@holder".
+                                        Please contact TeX support%
+                                    }%
+                                    {??}%
+                            }%
+                            {\csuse{copyright@\copyright@holder @holdertext}\\}%
+                    }%
                 \bgroup
                     \let\ecta@styledata@noexpand\@empty
                     \ifdefined\econsocart@author@corref@num
@@ -1620,7 +1605,9 @@
                                     \econsocart@author@corref@num\space for openaccess license}%
                             }%
                             {%
-                                \edef\tmp@id{\csuse{econsocart@author@numid@\econsocart@author@corref@num}}%
+                                \edef\tmp@id{%
+                                    \csuse{econsocart@author@numid@\econsocart@author@corref@num}%
+                                    }%
                                 \csuse{author@from@label\tmp@id}\
                             }%
                     \else
@@ -1628,22 +1615,32 @@
                         \textbf{???CORREF AUTHOR??}%
                     \fi
                     is the corresponding author on this paper.
-                    \csuse{license@\license@type @licencetypetext}%
+                    \ifcsundef{copyright@holder}%
+                        {\csuse{license@\license@type @licencetypetext}}%
+                        {}%
                 \egroup
                 }}%
             \ifdim\ht\@tempboxa>\dimexpr3\baselineskip\relax
                 \ifdim\ht\@tempboxa>\dimexpr5\baselineskip\relax
-                    \econsocart@error{open access text in copyright is longer than 5 lines, contact TeX support}%
+                    \econsocart@error{open access text in copyright is longer than 5 lines, 
+                        contact TeX support}%
                 \fi
                 \edef\tmp@oa@corr{\the\dimexpr\baselineskip\relax}%
                 \ifdim\ht\@tempboxa>\dimexpr4\baselineskip\relax
                     \edef\tmp@oa@corr{\the\dimexpr\baselineskip*2\relax}%
                 \fi
-                \immediate\write\@auxout{\string\xdef\string\econsocart@too@long@open@access@text{\tmp@oa@corr}}%
+                \immediate\write\@auxout{%
+                    \string\xdef\string\econsocart@too@long@open@access@text{\tmp@oa@corr}%
+                    }%
                 \ifdim\econsocart@too@long@open@access@corr>\z@
-                    \immediate\write\@auxout{\string\xdef\string\econsocart@too@long@open@access@spare{\econsocart@too@long@open@access@corr}}%
+                    \immediate\write\@auxout{%
+                        \string\xdef\string\econsocart@too@long@open@access@spare{%
+                            \econsocart@too@long@open@access@corr}%
+                        }%
                 \else
-                    \immediate\write\@auxout{\string\xdef\string\econsocart@too@long@open@access@spare{\the\maxdimen}}%
+                    \immediate\write\@auxout{%
+                        \string\xdef\string\econsocart@too@long@open@access@spare{\the\maxdimen}%
+                        }%
                 \fi
                 \edef\tmp@oa@corr{\the\dimexpr6.62\p@+\tmp@oa@corr\relax}%
                 \raisebox{\tmp@oa@corr}[\z@][\z@]{\vtop{\unvbox\@tempboxa}}%
@@ -1653,11 +1650,25 @@
             }
     \else
         \def\copyrightline@text{%
-            \textcopyright\ \the\@copyear\ 
-            \url@fmt{}{}{\copyright@owner}{\journal@url}\hfill
-            \@ifundefined{@doi}%
-                {}%
-                {\startchkuriskip\safe@href{\doi@base\@doi}{\doi@base\@doi}\endchkuriskip}%
+            \ifcsundef{copyright@holder}%
+                {%
+                    \textcopyright\ \the\@copyear\ 
+                    \url@fmt{}{}{\copyright@owner}{\journal@url}\hfill
+                    \@ifundefined{@doi}%
+                        {}%
+                        {\startchkuriskip\safe@href{\doi@base\@doi}{\doi@base\@doi}\endchkuriskip}%
+                }%
+                {%
+                    \setbox\@tempboxa\vbox{{%
+                        \parindent=\z@
+                        \csuse{copyright@\copyright@holder @holdertext}\\
+                        \@ifundefined{@doi}%
+                            {}%
+                            {\startchkuriskip\safe@href{\doi@base\@doi}{\doi@base\@doi}\endchkuriskip}%
+                        }}%
+                    \raisebox{6.62\p@}[\z@][\z@]{\vtop{\unvbox\@tempboxa}}%
+
+                }%
             }
     \fi
     \def\author@prefix{%
@@ -1666,12 +1677,20 @@
             {\enlargethispage{-\econsocart@too@long@open@access@text}}%
         }
 \else
+    \csdef{copyright@U.S. Government work@holdertext}{Published \the\@copyear. 
+        This article is a U.S. Government work and 
+        is in the public domain in the USA.%
+        }
     \def\copyrightline@text{%
-        {\fontfamily{ptm}\selectfont\textcopyright}\ 
-        \the\@copyear\ 
-        The Author\ifnum\c@author>1 s\fi. Licensed under the 
-        \safe@href{https://creativecommons.org/licenses/by-nc/4.0/legalcode}%
-            {Creative Commons Attribution-NonCommercial License 4.0}.\break
+        \ifcsundef{copyright@holder}%
+            {%
+                {\fontfamily{ptm}\selectfont\textcopyright}\ 
+                \the\@copyear\ 
+                The Author\ifnum\c@author>1 s\fi. Licensed under the 
+                \safe@href{https://creativecommons.org/licenses/by-nc/4.0/legalcode}%
+                    {Creative Commons Attribution-NonCommercial License 4.0}.\break
+            }%
+            {\csuse{copyright@\copyright@holder @holdertext}\\}%
         Available at \url{\journal@url}.
         \@ifundefined{@doi}{}{\startchkuriskip\url{\doi@base\@doi}\endchkuriskip}%
         }
@@ -1835,13 +1854,27 @@
         \fi
     \fi
     \ifecta@layout
-        \if@open@access
-            \xappto\xml@authorcopyrightline{\ecta@oa@published@text}%
-        \else
-            \global\let\xml@authorcopyrightline\undefined
-        \fi
+        \ifcsundef{copyright@holder}%
+            {%
+                \if@open@access
+                    \xappto\xml@authorcopyrightline{\ecta@oa@published@text}%
+                \else
+                    \global\let\xml@authorcopyrightline\undefined
+                \fi
+            }%
+            {%
+                \xdef\xml@authorcopyrightline{%
+                    \csuse{copyright@\copyright@holder @holdertext}%
+                    }%
+            }%
     \else
-        \gpreto\xml@authorcopyrightline{Copyright }%
+        \ifcsundef{copyright@holder}%
+            {\gpreto\xml@authorcopyrightline{Copyright }}%
+            {%
+                \xdef\xml@authorcopyrightline{%
+                    \csuse{copyright@\copyright@holder @holdertext}%
+                    }%
+            }%
     \fi
     \bgroup
         \let\smonth\@firstofone
@@ -2000,29 +2033,6 @@
             \@nameuse{auto@\auto@printauthor@used @and@user@%
                 \user@printauthor@used @printauthor@error}%
         \fi
-        \ifcsundef{author@thanksref@used}%
-            {%
-                \if@supplement@onlineonly
-                \else
-                    \ifcsundef{layout@notes@used}%
-                        {%
-                            \ifnum\jobstart@date@info<20200530%
-                                \econsocart@error{missing \string\thanksref\space
-                                    in the last author}%
-                            \fi
-                        }%
-                        {}%
-                \fi
-            }%
-            {%
-                \ifnum\c@author=\csuse{author@thanksref@used}%
-                \else
-                    \ifnum\jobstart@date@info<20200530%
-                        \econsocart@error{please move \string\thanksref\space 
-                            into the last \string\author}%
-                    \fi
-                \fi
-            }% 
     }
 %
 % AUTHOR
@@ -2158,6 +2168,9 @@
                 ##1%
             \fi
             }%
+        \ifecta@layout
+            \scshape
+        \fi
         #2%
     \egroup
     \endgraf
@@ -2345,8 +2358,11 @@
         \ifcsundef{econsocart@too@long@open@access@text}%
             {}%
             {%
-                \xdef\econsocart@too@long@open@access@corr{\the\dimexpr\econsocart@too@long@open@access@corr+\baselineskip\relax}%
-                \econsocart@calc@oa@dim(\econsocart@too@long@open@access@text/\econsocart@too@long@open@access@spare)*\baselineskip\@nil
+                \xdef\econsocart@too@long@open@access@corr{%
+                    \the\dimexpr\econsocart@too@long@open@access@corr+\baselineskip\relax
+                    }%
+                \econsocart@calc@oa@dim(\econsocart@too@long@open@access@text/%
+                    \econsocart@too@long@open@access@spare)*\baselineskip\@nil
                 \vskip-\econsocart@temp@oa@skip
             }%
     \fi
@@ -2397,8 +2413,11 @@
                 \ifcsundef{econsocart@too@long@open@access@text}%
                     {}%
                     {%
-                        \xdef\econsocart@too@long@open@access@corr{\the\dimexpr\econsocart@too@long@open@access@corr+\abstract@skip\relax}%
-                        \econsocart@calc@oa@dim(\econsocart@too@long@open@access@text/\econsocart@too@long@open@access@spare)*\abstract@skip\@nil
+                        \xdef\econsocart@too@long@open@access@corr{%
+                            \the\dimexpr\econsocart@too@long@open@access@corr+\abstract@skip\relax
+                            }%
+                        \econsocart@calc@oa@dim(\econsocart@too@long@open@access@text/%
+                            \econsocart@too@long@open@access@spare)*\abstract@skip\@nil
                         \vskip-\econsocart@temp@oa@skip
                     }%
             \fi
@@ -2415,7 +2434,7 @@
     }
 \def\@pubmonth{0}
 %
-\AtBeginDocument{\set@pubmonth@by@issue}%
+\AtBeginDocument{\set@pubmonth@by@issue}
 %
 \def\thepubmonth{%
     \@ifundefined{month@item@\@pubmonth}%
@@ -2647,8 +2666,11 @@
                     {%
                         % keywords are close too abstract so only 30% of spare space is used
                         \@tempskipa=\keyword@skip
-                        \xdef\econsocart@too@long@open@access@corr{\the\dimexpr\econsocart@too@long@open@access@corr+0.5\@tempskipa\relax}%
-                        \econsocart@calc@oa@dim(\econsocart@too@long@open@access@text/\econsocart@too@long@open@access@spare)*0.5\@tempskipa\@nil
+                        \xdef\econsocart@too@long@open@access@corr{%
+                            \the\dimexpr\econsocart@too@long@open@access@corr+0.5\@tempskipa\relax
+                            }%
+                        \econsocart@calc@oa@dim(\econsocart@too@long@open@access@text/%
+                            \econsocart@too@long@open@access@spare)*0.5\@tempskipa\@nil
                         \vskip-\econsocart@temp@oa@skip
                     }%
             \fi
@@ -2758,6 +2780,8 @@
 \ifte@layout
     \def\etal{et~al\spacefactor=999\relax}
 \else
+    % condition \ifnum\sfcode`\.=\@m from kernel will fail, as \sfcode`.=1006 (from amsgen)
+    \let\normalsfcodes\frenchspacing
     \frenchspacing
 \fi
 \init@settings
@@ -2779,64 +2803,14 @@
         \econsocart@setref@textup{\econsocart@setref{#1}{#2}{#3}}%
         }
 \else
-    \ifnum\jobstart@date@info>20210921%
-        \ifqe@layout
-            \def\@setref#1#2#3{%
-                \textup{\econsocart@setref{#1}{#2}{#3}}%
-                }
-        \fi
-    \else
-        \def\HyPsd@ref[#1]#2{\HyPsd@@ref[#1]#2*\END}
-        \def\HyPsd@@ref[#1]#2*#3\END{%
-            \ifx\\#3\\%
-                \HyPsd@@@ref[#1]{#2}%
-            \else
-                \expandafter\HyPsd@@@ref
-            \fi
-            }%
-        \def\HyPsd@@@ref[#1]#2{%
-            \expandafter\ifx\csname r@#2\endcsname\relax
-                ??%
-            \else
-                \ifx.#1.\else#1 \fi\expandafter\expandafter\expandafter\@car\csname r@#2\endcsname\@nil
-            \fi
-        }
-        \def\ref{\@ifnextchar[{\te@ref}{\te@ref[]}}
-        \let\ref@addon\@empty
-        \def\te@ref[#1]#2{%
-            \ifx.#1.\else
-                \def\ref@addon{#1~}%
-            \fi
-            \expandafter\@setref\csname r@#2\endcsname\@firstoftwo{#2}%
-            \let\ref@addon\@empty
-            }
-        \def\pageref{\@ifnextchar[{\te@pageref}{\te@pageref[]}}
-        \def\te@pageref[#1]#2{%
-            \ifx.#1.\else
-                \def\ref@addon{#1~}%
-            \fi
-            \expandafter\@setref\csname r@#2\endcsname\@secondoftwo{#2}%
-            \let\ref@addon\@empty
-            }
+    \ifqe@layout
         \def\@setref#1#2#3{%
-            \ifx#1\relax
-                \protect\G@refundefinedtrue
-                \nfss@text{\reset@font\bfseries ??}%
-                \@latex@warning{Reference `#3' on page \thepage \space undefined}%
-            \else
-                \b@cite@color
-                \hyper@linkstart{link}{#3.label}%
-                \color@setgroup
-                    \ifqe@layout\upshape\fi\ref@addon\expandafter#2#1\null
-                \color@endgroup
-                \hyper@linkend
-                \e@cite@color
-            \fi
+            \textup{\econsocart@setref{#1}{#2}{#3}}%
             }
     \fi
 \fi
 %
-\if@xmlfmbm% todo: update for new converter 
+\if@xmlfmbm
     \def\xmlfirstpage#1{\gdef\@fp{#1}}
     \def\xmllastpage#1{\gdef\@lp{#1}}
     \renewenvironment{frontmatter}{}{}
