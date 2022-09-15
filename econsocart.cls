@@ -11,9 +11,9 @@
 %% Please submit bugs or your comments to latex-support@vtex.lt
 %%
 %% The original distribution is located at:
-%% https://www.e-publications.org/econsocart/support/
+%% https://www.e-publications.org/es/support/
 %%
-%% Copyright (c) 2020 UAB "VTeX"
+%% Copyright (c) 2022 UAB "VTeX"
 %%
 %% Permission is granted to copy, distribute and/or modify this
 %% software under the terms of the LaTeX Project Public License
