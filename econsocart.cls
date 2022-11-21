@@ -20,7 +20,7 @@
 %% (LPPL), version 1.3c or any later version.
 %%
 \NeedsTeXFormat{LaTeX2e}[2000/06/01]
-\ProvidesClass{econsocart}[2022/02/25 v1.4.0, The Econometric Society Journals]
+\ProvidesClass{econsocart}[2022/11/21 v1.4.1, The Econometric Society Journals]
 % 
 \RequirePackage{etoolbox}
 % 
@@ -2213,10 +2213,10 @@
                         \xdef\tmp@add@ref{%
                             \csuse{econsocart@author@#1@addressref@numid@\the\@tempcntb}%
                             }%
-                        \edef\aff@toks{\aff@toks
+                        \protected@edef\aff@toks{\aff@toks
                             \csuse{address@for@affiliation@num@%
                                 \csuse{econsocart@address@idnum@\tmp@add@ref}}%
-                            \protect\sep@by@num@in@seq{\the\@tempcntb}%
+                            \sep@by@num@in@seq{\the\@tempcntb}%
                                 {\csuse{econsocart@author@#1@addressrefs}}%
                                 {{} and }{, }{, and } {}}%
                         }%
