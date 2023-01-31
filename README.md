@@ -3,7 +3,7 @@
 LaTeX author support files for the Econometric Society journal 
 [Econometrica (ECTA)](https://www.econometricsociety.org/publications/econometrica/browse)
 
-## Before begining
+## Before beginning
 
 `econsocart` LaTeX package is the updated version of now obsolete `ectaart`.
 
@@ -11,7 +11,7 @@ LaTeX author support files for the Econometric Society journal
 
 The following files are given in the repository (or directly in `.zip` archive):
 
--   `econsocart.cls`, `econsocart.cfg` - LaTeX style files designed for articles of the Econometric Society journals. 
+-   `econsocart.cls`, `econsocart.cfg` - LaTeX style files designed for articles of the Econometric Society journals. (See also [QE](https://github.com/vtex-soft/texsupport.econometricsociety-qe) and [TE](https://github.com/vtex-soft/texsupport.econometricsociety-te).)
     Please do not change them. These files are already loaded in the respective template files;
 -   `ecta_template.tex` - the main template file should be used for article preparation;
 -   `ecta_sample.pdf` - sample file and instructions for the preparation of a
