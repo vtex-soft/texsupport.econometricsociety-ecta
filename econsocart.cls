@@ -20,13 +20,14 @@
 %% (LPPL), version 1.3c or any later version.
 %%
 \NeedsTeXFormat{LaTeX2e}[2000/06/01]
-\ProvidesClass{econsocart}[2022/11/21 v1.4.1, The Econometric Society Journals]
+\ProvidesClass{econsocart}[2025/01/29 v1.4.16, The Econometric Society Journals]
 % 
 \RequirePackage{etoolbox}
 % 
 \newif\if@supplement \@supplementfalse
 \newif\if@onlineonly \@onlineonlyfalse
 \newif\if@supplement@onlineonly \@supplement@onlineonlyfalse
+\newif\if@report \@reportfalse
 \newif\if@sici \@sicifalse
 \newif\if@biblink \@biblinkfalse
 \newif\ifendbibitem@ \endbibitem@false
@@ -100,6 +101,7 @@
     \global\@supplement@onlineonlytrue
     \def\thepage@prefix{o}%
     }
+\DeclareOption{report}{\@reporttrue}
 %
 % Different paper sizes
 \DeclareOption{wwwview}{\@wwwviewabletrue}
@@ -492,8 +494,8 @@
 \long\def\@thankstext[#1]#2#3{%
     \@thankslabel[#1]{#2}%
     \bgroup
-        \let\fagency\blackwell@fagency
-        \let\fnumber\blackwell@fnumber
+        \let\gsponsor\blackwell@fagency
+        \let\gnumber\blackwell@fnumber
         \protected@xdef\@thanks{%
             \@thanks\protect\thanks@thefnmark{#2thanks}%
             \protect\@footnotetext{\thanks@hypertarget{#2}#3}%
@@ -505,14 +507,65 @@
         \unrestored@protected@xdef\@thefnmark{#1}%
     \endgroup
     }%
-\long\def\support#1{%
-    \bgroup
-        \let\fagency\blackwell@fagency
-        \let\fnumber\blackwell@fnumber
-        \protected@xdef\@thanks{%
-            \@thanks\protect\support@thefnmark{}%
-            \protect\@footnotetext{\csuse{support@footnotetext@prehook}#1}%
+% Macros for processing environments
+\let\start@tex@env\relax
+\let\end@tex@env\relax
+%
+\long\def\add@env@toks#1#2#3\end#4{%
+    %% #1 - initial environment; #2 - token list; #3 - content's stream; #4 - current environment end
+    \def\check@param@a{#1}%
+    \def\check@param@b{#4}%
+    \ifx\check@param@a\check@param@b
+        %% initial environment end
+        \def\@next@{%
+            \let\end@tex@env\relax
+            \global#2\expandafter{\the#2#3\end@tex@env}%
+            \endgroup
+            %% run hook at initial environment end
+            \csname end@add@env@#1@hook\endcsname
             }%
+    \else
+        %% not initial environment end 
+        \def\@next@{%
+            \global#2\expandafter{\the#2#3\end{#4}}%
+            \add@env@toks{#1}{#2}%
+            }%
+    \fi
+    \@next@
+    }
+\def\read@opt@args#1#2[#3]{%
+    \let\start@tex@env\relax
+    \global#2\expandafter{\the#2\start@tex@env{#1}[#3]}%
+    \add@env@toks{#1}{#2}%
+    }
+\def\check@opt@args#1#2{%
+    \@ifnextchar[%
+        {\read@opt@args{#1}{#2}}%
+        {%
+         \let\start@tex@env\relax
+         \global#2\expandafter{\the#2\start@tex@env{#1}[]}%
+         \add@env@toks{#1}{#2}%
+        }%
+    }
+\def\get@env@toks#1#2{%
+    %% #1 - environment; #2 - token list
+    \expandafter\expandafter\expandafter\let\expandafter\expandafter\csname get@env@saved@env@#1\endcsname\csname #1\endcsname
+    \expandafter\expandafter\expandafter\let\expandafter\expandafter\csname get@env@saved@env@end#1\endcsname\csname end#1\endcsname
+    \expandafter\gdef\csname #1\endcsname{\check@opt@args{#1}{#2}}%
+    }
+\newtoks\document@funding
+\get@env@toks{funding}{\document@funding}
+\let\gsponsor\blackwell@fagency
+\let\gnumber\blackwell@fnumber
+\def\funding@@fmt{%
+    \bgroup
+        \long\def\start@tex@env##1[##2]##3\end@tex@env{%
+            \protected@xdef\@thanks{%
+                \@thanks\protect\support@thefnmark{}%
+                \protect\@footnotetext{\csuse{support@footnotetext@prehook}##3}%
+                }%
+            }%
+        \the\document@funding
     \egroup
     }
 %
@@ -725,7 +778,7 @@
         \thmnumber{\thmnumber@pre\@ifnotempty{#1}{\thmnumber@space}\@upn{#2}\thmnumber@post}%
         \thmnote{ \thmnote@pre #3\thmnote@post}%
     }%
-\newtheoremstyle{remark}%
+\newtheoremstyle{definition}%
     {\medskipamount}%
     {\medskipamount}%
     {\upshape \csuse{corthmlist@addons}}%
@@ -1100,6 +1153,8 @@
 \gdef\@makefntext@fmt#1{%
     \parindent=10\p@
     \hskip10\p@
+    \let\quote@size\footnotesize
+    \let\quotation@size\footnotesize
     \@makefnmark
     }
 \DeclareRobustCommand\freefootnotetext[2][]{%
@@ -1315,25 +1370,9 @@
         \@addtoreset{equation}{section}%
         \def\theequation{\thesection.\arabic{equation}}%
     \fi
-    \ifte@layout
-    \else
-        \@addtoreset{figure}{section}%
-        \def\thefigure{\thesection.\arabic{figure}}%
-        \@addtoreset{table}{section}%
-        \ifecta@layout
-            \def\thetable{\thesection.\Roman{table}}%
-        \else
-            \def\thetable{\thesection.\arabic{table}}%
-        \fi
-    \fi
     \get@changed@counter@info@for@xml{section}{appendix}%
     \if@seceqn
         \get@changed@counter@info@for@xml{equation}{appendix}%
-    \fi
-    \ifte@layout
-    \else
-        \get@changed@counter@info@for@xml{table}{appendix}%
-        \get@changed@counter@info@for@xml{figure}{appendix}%
     \fi
     \csname econsocart@appendix@hook\endcsname
     }
@@ -1506,7 +1545,10 @@
     \def\copyright@text{%
         \hfilneg
         \url@fmt{}{\upshape}{\@journal}{\journal@url/}\
-        \@gobble{\volume@label\ }\@volume
+        \if@report
+        \else
+            \@gobble{\volume@label\ }\@volume
+        \fi
         \@gobble{\issue@label\ \@issue\ } (\the\@pubyear),
         \@pagerange\hfill \@eissn/\@snumber
         }
@@ -1518,23 +1560,23 @@
     \fi
 \fi
 \def\copyrightline@skip{\z@}
+\let\econsocart@styledata@noexpand\noexpand
 \ifecta@layout
     \def\license@type{???license@type???}
     \csdef{license@???license@type???@licencetype}{???}
     \csdef{license@???license@type???@licencetypetext}{???}
-    \let\ecta@styledata@noexpand\noexpand
     \def\ecta@oa@published@text{ Econometrica published by John Wiley \&
             Sons Ltd on behalf of The Econometric Society}%
     \def\license@CC@BY@NC@licencetype{creativeCommonsBy-nc}
     \def\license@CC@BY@NC@licencetypetext{This is an open access article under the terms of the 
-        \ecta@styledata@noexpand\href{https://creativecommons.org/licenses/by-nc/4.0/}%
+        \econsocart@styledata@noexpand\href{https://creativecommons.org/licenses/by-nc/4.0/}%
             {Creative Commons Attribution-NonCommercial} License, which permits use, 
         distribution and reproduction in any medium, provided the original work is properly 
         cited and is not used for commercial purposes.%
         }
     \def\license@CC@BY@NC@ND@licencetype{creativeCommonsBy-nc-nd}
     \def\license@CC@BY@NC@ND@licencetypetext{This is an open access article under the terms of the 
-        \ecta@styledata@noexpand\href{https://creativecommons.org/licenses/by-nc-nd/4.0/}%
+        \econsocart@styledata@noexpand\href{https://creativecommons.org/licenses/by-nc-nd/4.0/}%
             {Creative Commons Attribution-NonCommercial-NoDerivs} License, 
         which permits use and distribution in any medium, 
         provided the original work is properly cited, 
@@ -1542,7 +1584,7 @@
         }
     \def\license@CC@BY@licencetype{creativeCommonsBy}
     \def\license@CC@BY@licencetypetext{This is an open access article under the terms of the 
-        \ecta@styledata@noexpand\href{https://creativecommons.org/licenses/by/4.0/}%
+        \econsocart@styledata@noexpand\href{https://creativecommons.org/licenses/by/4.0/}%
             {Creative Commons Attribution} License, 
         which permits use, distribution and reproduction in any medium, 
         provided the original work is properly cited.%
@@ -1578,6 +1620,13 @@
                 \parindent=\z@
                 \nohyphen
                 \spaceskip=\fontdimen2\font \@plus 1\p@ \@minus 1\p@
+                \ifcsundef{correction@text}%
+                    {}%
+                    {%
+                        \correction@text
+                        \endgraf
+                        \vskip10\p@
+                    }%
                 \ifcsundef{copyright@holder}%
                     {%
                         \textcopyright\ \the\@copyear\ The Author\ifnum\c@author>1s\fi.%
@@ -1596,7 +1645,7 @@
                             {\csuse{copyright@\copyright@holder @holdertext}\\}%
                     }%
                 \bgroup
-                    \let\ecta@styledata@noexpand\@empty
+                    \let\econsocart@styledata@noexpand\@empty
                     \ifdefined\econsocart@author@corref@num
                         \ifcsundef{econsocart@author@numid@\econsocart@author@corref@num}%
                             {%
@@ -1622,13 +1671,34 @@
                 }}%
             \ifdim\ht\@tempboxa>\dimexpr3\baselineskip\relax
                 \ifdim\ht\@tempboxa>\dimexpr5\baselineskip\relax
-                    \econsocart@error{open access text in copyright is longer than 5 lines, 
-                        contact TeX support}%
+                    \ifcsundef{correction@text}%
+                        {%
+                            \econsocart@error{open access text in copyright is longer than 5 lines,
+                                contact TeX support}%
+                        }%
+                        {%
+                            \ifdim\ht\@tempboxa>\dimexpr8\baselineskip\relax
+                                \econsocart@error{%
+                                    Please shorten \string\setpkgattr{correction}{text} as correction + copyright
+                                    is longer than 7 lines. Please consult this with chief of Red-Mak. More info OTRS139476%
+                                    }%
+                            \fi
+                        }%
                 \fi
                 \edef\tmp@oa@corr{\the\dimexpr\baselineskip\relax}%
                 \ifdim\ht\@tempboxa>\dimexpr4\baselineskip\relax
                     \edef\tmp@oa@corr{\the\dimexpr\baselineskip*2\relax}%
                 \fi
+                \ifcsundef{correction@text}%
+                    {}%
+                    {%
+                        \@tempdima=\ht\@tempboxa
+                        \divide \@tempdima by 10%
+                        \@settopoint\@tempdima
+                        \multiply \@tempdima by 10%
+                        \advance \@tempdima by -2\baselineskip
+                        \edef\tmp@oa@corr{\the\@tempdima}%
+                    }%
                 \immediate\write\@auxout{%
                     \string\xdef\string\econsocart@too@long@open@access@text{\tmp@oa@corr}%
                     }%
@@ -1650,49 +1720,119 @@
             }
     \else
         \def\copyrightline@text{%
-            \ifcsundef{copyright@holder}%
-                {%
-                    \textcopyright\ \the\@copyear\ 
-                    \url@fmt{}{}{\copyright@owner}{\journal@url}\hfill
-                    \@ifundefined{@doi}%
-                        {}%
-                        {\startchkuriskip\safe@href{\doi@base\@doi}{\doi@base\@doi}\endchkuriskip}%
-                }%
-                {%
-                    \setbox\@tempboxa\vbox{{%
-                        \parindent=\z@
+            \setbox\@tempboxa\vbox{{%
+                \parindent=\z@
+                \nohyphen
+                \spaceskip=\fontdimen2\font \@plus 1\p@ \@minus 1\p@
+                \ifcsundef{correction@text}%
+                    {}%
+                    {%
+                        \correction@text
+                        \endgraf
+                        \vskip10\p@
+                    }%
+                \ifcsundef{copyright@holder}%
+                    {%
+                        \textcopyright\ \the\@copyear\ 
+                        \url@fmt{}{}{\copyright@owner}{\journal@url}\hfill
+                        \@ifundefined{@doi}%
+                            {}%
+                            {\startchkuriskip\safe@href{\doi@base\@doi}{\doi@base\@doi}\endchkuriskip}%
+                    }%
+                    {%
                         \csuse{copyright@\copyright@holder @holdertext}\\
                         \@ifundefined{@doi}%
                             {}%
                             {\startchkuriskip\safe@href{\doi@base\@doi}{\doi@base\@doi}\endchkuriskip}%
-                        }}%
-                    \raisebox{6.62\p@}[\z@][\z@]{\vtop{\unvbox\@tempboxa}}%
-
+                    }%
+                }}%
+            \ifdim\ht\@tempboxa>\dimexpr8\baselineskip\relax
+                \econsocart@error{%
+                    Please shorten \string\setpkgattr{correction}{text} as correction + copyright
+                    is longer than 7 lines. Please consult this with chief of Red-Mak. More info OTRS139476%
+                    }%
+            \fi
+            \edef\tmp@correction@text@corr{\the\dimexpr\baselineskip\relax}%
+            \ifdim\ht\@tempboxa>\dimexpr4\baselineskip\relax
+                \edef\tmp@correction@text@corr{\the\dimexpr\baselineskip*2\relax}%
+            \fi
+            \ifcsundef{correction@text}%
+                {}%
+                {%
+                    \@tempdima=\ht\@tempboxa
+                    \divide \@tempdima by 10%
+                    \@settopoint\@tempdima
+                    \multiply \@tempdima by 10%
+                    \advance \@tempdima by -2\baselineskip
+                    \edef\tmp@correction@text@corr{\the\@tempdima}%
                 }%
+            \immediate\write\@auxout{%
+                \string\xdef\string\econsocart@too@long@correction@text{\tmp@correction@text@corr}%
+                }%
+            \ifcsundef{correction@text}%
+                {\def\copyrightline@text@corr{\z@}}%
+                {\edef\copyrightline@text@corr{\the\dimexpr6.62\p@+\tmp@correction@text@corr\relax}}%
+            \raisebox{\copyrightline@text@corr}[\z@][\z@]{\vtop{\unvbox\@tempboxa}}%
             }
     \fi
     \def\author@prefix{%
         \ifcsundef{econsocart@too@long@open@access@text}%
-            {}%
+            {%
+                \ifcsundef{correction@text}%
+                    {}%
+                    {\enlargethispage{-\econsocart@too@long@correction@text}}%
+            }%
             {\enlargethispage{-\econsocart@too@long@open@access@text}}%
         }
 \else
+    \def\license@type{CC@BY@NC}
     \csdef{copyright@U.S. Government work@holdertext}{Published \the\@copyear. 
         This article is a U.S. Government work and 
         is in the public domain in the USA.%
         }
-    \def\copyrightline@text{%
+    \def\license@CC@BY@NC@licencetype{creativeCommonsBy-nc}
+    \def\license@CC@BY@NC@licencetypetext{%
+        Licensed under the 
+        \econsocart@styledata@noexpand\href{https://creativecommons.org/licenses/by-nc/4.0/legalcode}%
+            {Creative Commons Attribution-NonCommercial License 4.0}.%
+        }
+    \csdef{copyrightline@main@text}{%
         \ifcsundef{copyright@holder}%
             {%
                 {\fontfamily{ptm}\selectfont\textcopyright}\ 
                 \the\@copyear\ 
-                The Author\ifnum\c@author>1 s\fi. Licensed under the 
-                \safe@href{https://creativecommons.org/licenses/by-nc/4.0/legalcode}%
-                    {Creative Commons Attribution-NonCommercial License 4.0}.\break
+                The Author\ifnum\c@author>1 s\fi. \csuse{license@\license@type @licencetypetext}%
+                \break
             }%
             {\csuse{copyright@\copyright@holder @holdertext}\\}%
         Available at \url{\journal@url}.
         \@ifundefined{@doi}{}{\startchkuriskip\url{\doi@base\@doi}\endchkuriskip}%
+        }
+    \def\copyrightline@text{%
+        \bgroup
+            \let\econsocart@styledata@noexpand\@empty
+            \ifcsundef{correction@text}%
+                {%
+                    \csuse{copyrightline@main@text}%
+                }%
+                {%
+                    \setbox\@tempboxa=\vbox{%
+                        \correction@text
+                        \endgraf
+                        \vskip5.5\p@
+                        \csuse{copyrightline@main@text}%
+                        }%
+                    \@tempdima=\dimexpr\ht\@tempboxa-2\baselineskip\relax
+                    \ifdim\ht\@tempboxa>\dimexpr4\baselineskip+5.5\p@\relax
+                        \econsocart@error{%
+                            Please shorten \string\setpkgattr{correction}{text} as correction + copyright
+                            is longer than 4 lines. Please consult this with chief of Red-Mak. More info OTRS139476%
+                            }%
+                        \@tempdima=\z@
+                    \fi
+                    \raisebox{-\@tempdima}[\z@][\z@]{\vbox{\unvbox\@tempboxa}}%
+                }%
+        \egroup
         }
     \def\author@prefix{%
         \enlargethispage{\the\dimexpr-2\baselineskip+11\p@\relax}%
@@ -1790,7 +1930,11 @@
     \if@supplement@onlineonly
         \gdef\@runjournal{\sup@journal}%
     \else
-        \gdef\@runjournal{\@journal\ \@volume\ (\the\@pubyear)}%
+        \if@report
+            \gdef\@runjournal{\@journal\ (\the\@pubyear)}%
+        \else
+            \gdef\@runjournal{\@journal\ \@volume\ (\the\@pubyear)}%
+        \fi
     \fi
     \form@runauthors
     \ifecta@layout
@@ -1800,6 +1944,13 @@
     \fi
     \csname econsocart@fm@markboth@hook\endcsname
     \thispagestyle{copyright}%
+    \funding@@fmt
+    \ifx\@thanks\@empty
+        \def\@thanks{%
+            \protect\support@thefnmark{}%
+            \protect\@footnotetext{}%
+            }%
+    \fi
     \@thanks
     \abstract@fmt
     \keyword@fmt
@@ -1998,40 +2149,43 @@
             }%
     }%
     {%
-        \ifnum\n@authors>\z@
-            \@tempcnta=\z@
-            \edef\auto@printauthor@used{0}%
-            \edef\user@printauthor@used{0}%
-            \@whilenum\@tempcnta<\c@author\do{%
-                \advance\@tempcnta by \@ne
-                \edef\auto@prnaut@tmp{\@nameuse{econsocart@author@numid@\the\@tempcnta}}%
-                \edef\auto@prnead@tmp{\@nameuse{econsocart@author@\the\@tempcnta @eadref@numid}}%
-                \@ifundefined{printauthor@used@\auto@prnaut@tmp}%
-                    {% auto
-                        \@ifundefined{econsocart@author@numdeceased@\the\@tempcnta}%
-                            {%
-                                \@ifundefined{econsocart@author@\the\@tempcnta @eadref@numid}%
-                                    {}%
-                                    {%
-                                        \begingroup\unrestored@protected@xdef\@thefnmark{}\endgroup
-                                        \@footnotetext{%
-                                            \csuse{printauthor@footnotetext@prehook}%
-                                            \@printauthor{\auto@prnaut@tmp}: 
-                                            \printead{\auto@prnead@tmp}%
-                                            }%
-                                        \edef\auto@printauthor@used{1}%
-                                    }%
-                            }%
-                            {}%
+        \if@supplement
+        \else
+            \ifnum\n@authors>\z@
+                \@tempcnta=\z@
+                \edef\auto@printauthor@used{0}%
+                \edef\user@printauthor@used{0}%
+                \@whilenum\@tempcnta<\c@author\do{%
+                    \advance\@tempcnta by \@ne
+                    \edef\auto@prnaut@tmp{\@nameuse{econsocart@author@numid@\the\@tempcnta}}%
+                    \edef\auto@prnead@tmp{\@nameuse{econsocart@author@\the\@tempcnta @eadref@numid}}%
+                    \@ifundefined{printauthor@used@\auto@prnaut@tmp}%
+                        {% auto
+                            \@ifundefined{econsocart@author@numdeceased@\the\@tempcnta}%
+                                {%
+                                    \@ifundefined{econsocart@author@\the\@tempcnta @eadref@numid}%
+                                        {}%
+                                        {%
+                                            \begingroup\unrestored@protected@xdef\@thefnmark{}\endgroup
+                                            \@footnotetext{%
+                                                \csuse{printauthor@footnotetext@prehook}%
+                                                \@printauthor{\auto@prnaut@tmp}: 
+                                                \printead{\auto@prnead@tmp}%
+                                                }%
+                                            \edef\auto@printauthor@used{1}%
+                                        }%
+                                }%
+                                {}%
+                        }%
+                        {% user
+                            \@ifundefined{econsocart@author@numdeceased@\the\@tempcnta}%
+                                {\edef\user@printauthor@used{1}}%
+                                {}%
+                        }%
                     }%
-                    {% user
-                        \@ifundefined{econsocart@author@numdeceased@\the\@tempcnta}%
-                            {\edef\user@printauthor@used{1}}%
-                            {}%
-                    }%
-                }%
-            \@nameuse{auto@\auto@printauthor@used @and@user@%
-                \user@printauthor@used @printauthor@error}%
+                \@nameuse{auto@\auto@printauthor@used @and@user@%
+                    \user@printauthor@used @printauthor@error}%
+            \fi
         \fi
     }
 %
@@ -2042,38 +2196,6 @@
 \define@key{ead}{label}{%
     \def\ead@label{#1}%
     \protected@write\@auxout{}{\string\csxdef{econsocart@author@\the\c@author @eadref@numid}{#1}}%
-    }
-\define@key{author}{corref}[true]{\xdef\econsocart@author@corref@num{\the\c@author}}
-\define@key{author}{id}[default]{%
-    \csxdef{econsocart@author@numid@\the\c@author}{#1}%
-    \protected@write\@auxout{}{%
-        \string\csxdef{econsocart@author@numid@\the\c@author}{#1}%
-        \string\csxdef{econsocart@author@idnum@#1}{\the\c@author}%
-        }%
-    }
-\define@key{author}{deceased}[default]{%
-    \csxdef{econsocart@author@numdeceased@\the\c@author}{1}%
-    \protected@write\@auxout{}{\string\csxdef{econsocart@author@numdeceased@\the\c@author}{1}}%
-    }
-\define@key{author}{addressref}[default]{%
-    \xdef\addressref@list{#1}%
-    \@for\tmp@addr@ref:=#1\do{%
-        \stepcounter{econsocartaddressref}%
-        \@ifundefined{econsocart@address@idnum@\tmp@addr@ref}%
-            {%
-                \ifnum\n@authors>\z@
-                    \econsocart@error{there is no address with label: \tmp@addr@ref}%
-                \fi
-            }%
-            {}%
-        \protected@write\@auxout{}{%
-            \string\csxdef{econsocart@author@\the\c@author @addressref@numid@%
-                \the\c@econsocartaddressref}{\tmp@addr@ref}%
-            }%
-        }%
-    \protected@write\@auxout{}{%
-        \string\csxdef{econsocart@author@\the\c@author @addressrefs}{\the\c@econsocartaddressref}%
-        }%
     }
 %
 \ifecta@layout
@@ -2092,18 +2214,59 @@
             {\csuse{econsocart@\detokenize{#1}@uc@dot}}%
         }
 \fi
-\def\author{\@ifnextchar[{\author@fmt}{\author@fmt[]}}
+\def\author{\@ifnextchar[{\author@fmt}{\author@fmt[default]}}
 %
 \def\author@fmt[#1]#2{%
     \stepcounter{author}%
     \setcounter{econsocartaddressref}{0}%
-    \ifnum\c@author=\@ne \author@fmt@init\fi
+    \csxdef{econsocart@author@numid@\the\c@author}{\the\c@author}%
+    \protected@write\@auxout{}{%
+        \string\csxdef{econsocart@author@numid@\the\c@author}{\the\c@author}%
+        \string\csxdef{econsocart@author@idnum@\the\c@author}{\the\c@author}%
+        }%
+    \def\@tmp@corref{corref}%
+    \def\@tmp@deceased{deceased}%
+    \@for\tmp@addr@ref:=#1\do{%
+        \ifx\tmp@addr@ref\@tmp@corref
+            \xdef\econsocart@author@corref@num{\the\c@author}%
+        \else
+            \ifx\tmp@addr@ref\@tmp@deceased
+                \csxdef{econsocart@author@numdeceased@\the\c@author}{1}%
+                \protected@write\@auxout{}{\string\csxdef{econsocart@author@numdeceased@\the\c@author}{1}}%
+            \else
+                \stepcounter{econsocartaddressref}%
+                \@ifundefined{econsocart@address@idnum@\tmp@addr@ref}%
+                    {%
+                        \ifnum\n@authors>\z@
+                            \econsocart@error{there is no address with label: \tmp@addr@ref}%
+                        \fi
+                    }%
+                    {}%
+                \protected@write\@auxout{}{%
+                    \string\csxdef{econsocart@author@\the\c@author @addressref@numid@%
+                        \the\c@econsocartaddressref}{\tmp@addr@ref}%
+                    }%
+            \fi
+        \fi
+        }%
+    \ifnum\c@econsocartaddressref=\z@
+        \stepcounter{econsocartaddressref}%
+        \protected@write\@auxout{}{%
+            \string\csxdef{econsocart@author@\the\c@author @addressref@numid@%
+                \the\c@econsocartaddressref}{default}%
+            }%
+    \fi
+    \protected@write\@auxout{}{%
+        \string\csxdef{econsocart@author@\the\c@author @addressrefs}{\the\c@econsocartaddressref}%
+        }%
+    \ifnum\c@author=\@ne
+        \author@fmt@init
+    \fi
     \bgroup% for offdata and pdf metadata
         \def\inits##1{##1}%
         \def\fnms##1{{##1}}%
         \def\particle##1{##1}%
         \def\snm##1{##1}%
-        \setkeys{author}{#1}%
         \edef\tmp@aut@id{\@nameuse{econsocart@author@numid@\@arabic\c@author}}%
         \global\@namedef{author@from@label\tmp@aut@id}{%
             \def\inits####1{####1}%
@@ -2253,15 +2416,6 @@
     }
 %
 % ADDRESS
-\define@key{address}{id}[default]{%
-    \protected@write\@auxout{}{%
-        \string\csxdef{econsocart@address@numid@\the\c@address}{#1}%
-        \string\csxdef{econsocart@address@idnum@#1}{\the\c@address}%
-        }%
-    \csxdef{econsocart@address@numid@\the\c@address}{#1}%
-    \csxdef{econsocart@address@idnum@#1}{\the\c@address}%
-    }
-%
 \def\address{\@ifnextchar[{\address@fmt}{\address@fmt[default]}}
 %
 \ifecta@layout
@@ -2271,7 +2425,12 @@
     \def\def@orgdiv@for@aux{\def\orgdiv##1{\protect\aff@eat@stop\space##1}}
     \def\address@fmt[#1]#2{%
         \stepcounter{address}%
-        \setkeys{address}{#1}%
+        \protected@write\@auxout{}{%
+            \string\csxdef{econsocart@address@numid@\the\c@address}{#1}%
+            \string\csxdef{econsocart@address@idnum@#1}{\the\c@address}%
+            }%
+        \csxdef{econsocart@address@numid@\the\c@address}{#1}%
+        \csxdef{econsocart@address@idnum@#1}{\the\c@address}%
         \edef\tmp@addr@id{\csuse{econsocart@address@numid@\the\c@address}}%
         \expandafter\protected@xdef\csname address@ref@\tmp@addr@id\endcsname{\the\c@address}%
         \expandafter\newtoks\csname @address@\the\c@address\endcsname
@@ -2292,7 +2451,6 @@
                 \string\global\string\@namedef{address@for@affiliation@num@\the\c@address}%
                 {#2\string\aff@eat@stop}%
             }%
-        \setkeys{address}{#1}%
         \protected@write\@auxout
             {%
                 \let\dept\@firstofone
@@ -2306,7 +2464,12 @@
 \else
     \def\address@fmt[#1]#2{%
         \stepcounter{address}%
-        \setkeys{address}{#1}%
+        \protected@write\@auxout{}{%
+            \string\csxdef{econsocart@address@numid@\the\c@address}{#1}%
+            \string\csxdef{econsocart@address@idnum@#1}{\the\c@address}%
+            }%
+        \csxdef{econsocart@address@numid@\the\c@address}{#1}%
+        \csxdef{econsocart@address@idnum@#1}{\the\c@address}%
         \protected@write\@auxout
             {%
                 \let\orgdiv\@firstofone
@@ -2344,6 +2507,7 @@
             \medskip
             \ifecta@layout
             \else
+                \csuse{econsocart@printhistory@rule@position}%
                 \hrule\@width 18mm\relax
             \fi
             \printhistory
@@ -2558,7 +2722,10 @@
         \ifecta@layout
             \par
             \vskip-\medskipamount
-            \centerline{\rule[-3\p@]{18mm}{.4\p@}}%
+            \centerline{%
+                \csuse{econsocart@printhistory@rule@position}%
+                \rule[-3\p@]{18mm}{.4\p@}%
+                }%
         \fi
         \bgroup
             \nobreak
@@ -2578,6 +2745,7 @@
                     \smallskip\ifecta@layout\else\hfill\fi\break
                 \egroup
             \fi
+            \csuse{econsocart@printhistory@history@position}%
             \ifx\@received\empty@data
             \else
                 \received@prefix\@received\received@postfix
@@ -2591,6 +2759,19 @@
                 \pubonline@prefix\@pubonline\pubonline@postfix
             \fi
             \history@postfix\par
+            \@ifundefined{replication@statement}%
+                {%
+                    \csuse{econsocart@printhistory@error@output}%
+                }%
+                {%
+                    \vskip\baselineskip
+                    \ifecta@layout
+                        \parindent=\sv@parindent
+                    \else
+                        \noindent
+                    \fi
+                    \replication@statement
+                }%
         \egroup
         \gdef\history@exist{0}%
     \fi

@@ -20,6 +20,10 @@ The following files are given in the repository (or directly in `.zip` archive):
     of your document, proper tagging style, layout features, etc;
 -   `ecta_sample_final.pdf` - sample file with `final` option for prepublication;
 -   `ecta_sample.tex` - source file for the instructions paper `ecta_sample.pdf`;
+-   `ecta_supp_template.tex` - the template file should be used for supplement preparation;
+-   `ecta_supp_sample.pdf` - sample file and instructions for the preparation of a
+    supplementary material in LaTeX;
+-   `ecta_supp_sample.tex` - source file for the instructions paper `ecta_supp_sample.pdf`;
 -   `figure_sample.eps`, `figure_sample.pdf` - sample figures for `ecta_sample.pdf`.
 -   `ecta-fullname.bst` - BibTeX styles to prepare bibliography file.
     More information can be found [here](http://www.bibtex.org/Using/) 

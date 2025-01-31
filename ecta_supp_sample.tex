@@ -1,6 +1,4 @@
-% use option [draft] for initial submission
-%            [final] for the prepublication
-\documentclass[ecta,nameyear,draft]{econsocart}
+\documentclass[ecta,nameyear,final,supplement]{econsocart}
 %
 %\usepackage{}
 \RequirePackage[colorlinks,citecolor=blue,linkcolor=blue,urlcolor=blue,pagebackref]{hyperref}
@@ -51,7 +49,7 @@
 
 \begin{frontmatter}
 
-\title{A Sample Article Title}
+\title{Supplement to ``Title of the Main Article''}
 \runtitle{A Sample Running Head Title}
 
 \begin{aug}
@@ -81,31 +79,15 @@
 \orgname{University}}
 \end{aug}
 
-%% Put support info here. Reminder: do not thank the handling coeditor anonymously or by name
-\begin{funding}
-We thank four anonymous referees. The Editor should not be thanked anonymously or by name in this footnote, or elsewhere in the paper. The first author gratefully acknowledges
-financial support from the National Science Foundation through Grant XXX-0000000.
-\end{funding}
-%
-\coeditor{\fnm{[Name} \snm{Surname}; will be inserted later]}
-
-\begin{abstract}
-The abstract should summarize the contents of the paper. It should be clear,
-descriptive, self-explanatory and not longer than 150 words. It should also be
-suitable for publication in abstracting services. Please avoid using math formulas
-as much as possible. We recommend 3--8 keywords
-\end{abstract}
-
-
-\begin{keyword}
-\kwd{First keyword}
-\kwd{second keyword}
-\kwd{third keyword}
-\end{keyword}
+%% The Abstract section is optional for supplementary information.
+%% To include it, uncomment the following lines:
+% \begin{abstract}
+%     % Write your abstract here
+% \end{abstract}
 
 \end{frontmatter}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Main text entry area:
+%%%% Main text entry area:                                             %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Introduction}\label{s1}
@@ -348,16 +330,23 @@ Equil. Points
 & S \\
 \hline
 $L_1$    & $-$2.485252241 & 0.000000000    & 0.017100631    & 8.230711648    & U \\
-$L_2$    & 0.000000000    & 0.000000000    & 3.068883732    & 0.000000000    & S \\
-$L_3$    & 0.009869059    & 0.000000000    & 4.756386544    & $-$0.000057922 & U \\
-$L_4$    & 0.210589855    & 0.000000000    & $-$0.007021459 & 9.440510897    & U \\
-$L_5$    & 0.455926604    & 0.000000000    & $-$0.212446624 & 7.586126667    & U \\
-$L_6$    & 0.667031314    & 0.000000000    & 0.529879957    & 3.497660052    & U \\
-$L_7$    & 2.164386674    & 0.000000000    & $-$0.169308438 & 6.866562449    & U \\
-$L_8$    & 0.560414471    & 0.421735658    & $-$0.093667445 & 9.241525367    & U \\
-$L_9$    & 0.560414471    & $-$0.421735658 & $-$0.093667445 & 9.241525367    & U \\
-$L_{10}$ & 1.472523232    & 1.393484549    & $-$0.083801333 & 6.733436505    & U \\
-$L_{11}$ & 1.472523232    & $-$1.393484549 & $-$0.083801333 & 6.733436505    & U \\
+$L_2$    & $-$2.485252241 & 0.000000000    & 0.017100631    & 8.230711648    & U \\
+$L_3$    & 0.000000000    & 0.000000000    & 3.068883732    & 0.000000000    & S \\
+$L_4$    & 0.000000000    & 0.000000000    & 3.068883732    & 0.000000000    & S \\
+$L_5$    & 0.009869059    & 0.000000000    & 4.756386544    & $-$0.000057922 & U \\
+$L_6$    & 0.009869059    & 0.000000000    & 4.756386544    & $-$0.000057922 & U \\
+$L_7$    & 0.210589855    & 0.000000000    & $-$0.007021459 & 9.440510897    & U \\
+$L_8$    & 0.210589855    & 0.000000000    & $-$0.007021459 & 9.440510897    & U \\
+$L_9$    & 0.455926604    & 0.000000000    & $-$0.212446624 & 7.586126667    & U \\
+$L_{10}$    & 0.455926604    & 0.000000000    & $-$0.212446624 & 7.586126667    & U \\
+$L_{11}$    & 0.667031314    & 0.000000000    & 0.529879957    & 3.497660052    & U \\
+$L_{12}$    & 0.667031314    & 0.000000000    & 0.529879957    & 3.497660052    & U \\
+$L_{13}$    & 2.164386674    & 0.000000000    & $-$0.169308438 & 6.866562449    & U \\
+$L_{14}$    & 2.164386674    & 0.000000000    & $-$0.169308438 & 6.866562449    & U \\
+$L_{15}$    & 0.560414471    & 0.421735658    & $-$0.093667445 & 9.241525367    & U \\
+$L_{16}$    & 0.560414471    & $-$0.421735658 & $-$0.093667445 & 9.241525367    & U \\
+$L_{17}$ & 1.472523232    & 1.393484549    & $-$0.083801333 & 6.733436505    & U \\
+$L_{18}$ & 1.472523232    & $-$1.393484549 & $-$0.083801333 & 6.733436505    & U \\
 \hline
 \end{tabular}
 \legend{This is how table note should be presented.
@@ -391,6 +380,10 @@ Model
 {Model 2} & $\beta_0$ & $-$11.85 & 2.24 & $-$17.34 & $-$11.60 & $-$7.85 \\
           & $\beta_1$ & 0.73     & 0.21 & 0.32     & 0.73     & 1.16    \\
           & $\beta_2$ & $-$0.60  & 0.14 & $-$0.88  & $-$0.60  & $-$0.34 \\
+          & $\beta_3$ & 0.22     & 0.17 & $-$0.10  & 0.22     & 0.55    \\[6pt]
+{Model 3} & $\beta_0$ & $-$11.85 & 2.24 & $-$17.34 & $-$11.60 & $-$7.85 \\
+          & $\beta_1$ & 0.73     & 0.21 & 0.32     & 0.73     & 1.16    \\
+          & $\beta_2$ & $-$0.60  & 0.14 & $-$0.88  & $-$0.60  & $-$0.34 \\
           & $\beta_3$ & 0.22     & 0.17 & $-$0.10  & 0.22     & 0.55    \\
 \hline
 \end{tabular}
@@ -403,36 +396,6 @@ Model
 $u(x)$ for $x$ in the discrete support of $F$. The solid lines show $u_\textrm{conv}(x)$.}
 \label{penG}
 \end{figure}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Example with single Appendix:            %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{appendix}
-\section*{Title}\label{appn} %% if no title is needed, leave empty \section*{}.
-Appendices should be provided in \verb|{appendix}| environment. If there is only one appendix,
-then please refer to it in text as \ldots\ in the \hyperref[appn]{Appendix}.
-\end{appendix}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Example with multiple Appendixes:        %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{appendix}
-\section{Title of the First Appendix}\label{appA}
-If there are more than one appendix, then please refer to it
-as \ldots\ in Appendix \ref{appA}, Appendix \ref{appB}, etc.
-
-\section{Title of the Second Appendix}\label{appB}
-\subsection{First Subsection of Appendix \protect\ref{appB}}\label{appB1}
-
-If your appendix is long, make sure to divide it into subsections and refer to them in text. Use the standard \LaTeX\ commands for headings in \verb|{appendix}|.
-Headings and other objects will be numbered automatically.
-\begin{equation}
-\mathcal{P}=(j_{k,1},j_{k,2},\dots,j_{k,m(k)}). \label{path}
-\end{equation}
-
-Sample of cross-reference to formula (\ref{path}) in Appendix \ref{appB1}.
-Note that it is better to refer to Appendix \ref{appB1} as opposed to Appendix \ref{appB}, because it is easier for the reader to locate the necessary place. \end{appendix}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% Bibliography:                            %%

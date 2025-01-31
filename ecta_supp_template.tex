@@ -11,9 +11,7 @@
 %% manuscript as one .tex document.         %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% use option [draft] for initial submission
-%            [final] for the prepublication
-\documentclass[ecta,nameyear,draft]{econsocart}
+\documentclass[ecta,nameyear,final,supplement]{econsocart}
 %
 %\usepackage{}
 \RequirePackage[colorlinks,citecolor=blue,linkcolor=blue,urlcolor=blue,pagebackref]{hyperref}
@@ -94,23 +92,15 @@
 \orgname{???}}
 \end{aug}
 
-%% Put support info here.  Reminder: do not thank the handling coeditor anonymously or by name
-\begin{funding}
-We thank ???.
-\end{funding}
-%
-\begin{abstract}
-???
-\end{abstract}
-
-\begin{keyword}
-\kwd{???}
-\kwd{???}
-\end{keyword}
+%% The Abstract section is optional for supplementary information.
+%% To include it, uncomment the following lines:
+% \begin{abstract}
+%     % Write your abstract here
+% \end{abstract}
 
 \end{frontmatter}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Main text entry area:
+%%%% Main text entry area:                                             %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{???}
@@ -118,13 +108,13 @@ We thank ???.
 ???
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Single Appendix:            %%
+%% Single Appendix:                         %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\begin{appendix}
 %\section*{???} %% if no title is needed, leave empty \section*{}.
 %\end{appendix}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Multiple Appendixes:        %%
+%% Multiple Appendixes:                     %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\begin{appendix}
 %\section{???}
