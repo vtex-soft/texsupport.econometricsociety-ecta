@@ -20,7 +20,7 @@
 %% (LPPL), version 1.3c or any later version.
 %%
 \NeedsTeXFormat{LaTeX2e}[2000/06/01]
-\ProvidesClass{econsocart}[2025/01/29 v1.4.16, The Econometric Society Journals]
+\ProvidesClass{econsocart}[2025/02/20 v1.4.18, The Econometric Society Journals]
 % 
 \RequirePackage{etoolbox}
 % 
@@ -736,6 +736,17 @@
 \csuse{econsocart@zishape}
 % THEOREMS
 \csuse{econsocart@thm@macros}
+\renewcommand{\theoremstyle}[1]{%
+    \@ifundefined{th@#1}%
+        {%
+            \PackageError{amsthm}{Unknown theoremstyle `#1'}%
+            \thm@style{plain}%
+        }%
+        {%
+            \thm@style{#1}%
+        }%
+    }
+\let\th@remark\undefined
 \def\thm@space@after{.5em}
 \def\econsocart@thm@indent{\z@}
 \ifecta@layout
@@ -1720,6 +1731,7 @@
             }
     \else
         \def\copyrightline@text{%
+            \hsize=\textwidth
             \setbox\@tempboxa\vbox{{%
                 \parindent=\z@
                 \nohyphen
@@ -1945,11 +1957,13 @@
     \csname econsocart@fm@markboth@hook\endcsname
     \thispagestyle{copyright}%
     \funding@@fmt
-    \ifx\@thanks\@empty
-        \def\@thanks{%
-            \protect\support@thefnmark{}%
-            \protect\@footnotetext{}%
-            }%
+    \ifqe@layout
+        \ifx\@thanks\@empty
+            \def\@thanks{%
+                \protect\support@thefnmark{}%
+                \protect\@footnotetext{}%
+                }%
+        \fi
     \fi
     \@thanks
     \abstract@fmt
