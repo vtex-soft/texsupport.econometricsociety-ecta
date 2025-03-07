@@ -20,7 +20,7 @@
 %% (LPPL), version 1.3c or any later version.
 %%
 \NeedsTeXFormat{LaTeX2e}[2000/06/01]
-\ProvidesClass{econsocart}[2025/03/04 v1.4.19, The Econometric Society Journals]
+\ProvidesClass{econsocart}[2025/03/07 v1.4.20, The Econometric Society Journals]
 % 
 \RequirePackage{etoolbox}
 % 
@@ -1400,10 +1400,7 @@
     \ifecta@layout
         \def\section@size{\scshape}%
     \fi
-    \setcounter{section}{1}%
-    \if@seceqn
-        \setcounter{equation}{0}%
-    \fi
+    \stepcounter{section}%
     \csundef{app*star*section}%
     }
 %
@@ -2993,27 +2990,6 @@
         \immediate\closeout\@outlinefile
     \fi
 \fi
-% \numberwithin{equation}{section} activates seceqn
-\let\econsocart@equation@section@numberwithin\@ne
-\DeclareRobustCommand{\numberwithin}[3][\arabic]{%
-    \@ifundefined{c@#2}%
-        {%
-            \@nocounterr{#2}%
-        }%
-        {%
-            \@ifundefined{c@#3}%
-                {%
-                    \@nocnterr{#3}%
-                }%
-                {%
-                    \@addtoreset{#2}{#3}%
-                    \expandafter\xdef\csname the#2\endcsname{\expandafter\noexpand\csname the#3\endcsname .\noexpand#1{#2}}%
-                    \@ifundefined{econsocart@#2@#3@numberwithin}%
-                        {}%
-                        {\global\@seceqntrue}%
-                }%
-        }%
-    }
 %
 \let\econsocart@setref\@setref
 \ifecta@layout
