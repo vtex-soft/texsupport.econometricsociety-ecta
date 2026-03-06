@@ -112,7 +112,9 @@ as much as possible. We recommend 3--8 keywords.
 
 This template helps you to create a properly formatted \LaTeXe\ manuscript.
 Prepare your paper in the same style as used in this sample .pdf file.
-Try to avoid excessive use of italics and bold face; underlining is generally banned (except for exceptional cases). Please do not use any \LaTeXe\ or \TeX\ commands that affect the layout or formatting of your document (i.e., commands like \verb|\textheight|, \verb|\textwidth|, etc.). Note that the Introduction should be Section~\ref{s1} it should not imediately follow the abstract without a heading.
+Try to avoid excessive use of italics and bold face; underlining is generally banned (except for exceptional cases). Please do not use any \LaTeXe\ or \TeX\ commands that affect the layout or formatting of your document (i.e., commands like \verb|\textheight|, \verb|\textwidth|, etc.). Note that the Introduction should be Section~\ref{s1} it should not imediately follow the abstract without a heading. If your paper has a an approved supplement, reference the supplement at the end of the Introduction.  Cite the supplement;  \textit{Example}: The Supplemental Appendix (\citet{b2}) contains results for empirical tests. 
+When referencing material from the Supplement, use plain text.
+
 
 \section{Section Headings}
 Here are some subsections:
@@ -186,9 +188,9 @@ around the periods requires using \verb|\ldots|.
 Only include in the reference list entries for which there are text citations,
 and make sure all citations are included in the reference list.
 Simple author and year cite: \citet{b1}. 
-Multiple bibliography items cite: \citet{b2,b3,b4,b5}.
-Author only cite: \citeauthor{b4}.
-Year only cite: (\citeyear{b4}). Citing bibliography with object \citet[Theorem 1]{b1}. Citing within brackets is done with the same commands (e.g., \citet{b2,b3,b4}).
+Multiple bibliography items cite: \citet{b2,b3,b5,b6}.
+Author only cite: \citeauthor{b3}.
+Year only cite: (\citeyear{b3}). Citing bibliography with object \citet[Theorem 1]{b1}. Citing within brackets is done with the same commands (e.g., \citet{b2,b3,b5}). For papers with 5 or more authors, use the initials of the first four authors and the + symbol. For example, \citet{b4}.
 
 \section{Fonts}
 Please use text fonts in text mode, e.g.:
@@ -332,9 +334,9 @@ e.g., $t_{\mathrm{max}}-t_{\mathrm{min}} =10$. Operator names should use \verb|\
 
 \section{Tables and Figures}
 Cross-references to labeled tables: As you can see in Table~\ref{sphericcase}
-and also in Table~\ref{parset}.
+and also in Table~\ref{parset}. Vertical lines in tables are not permitted by journal style. 
 
-Sample of cross-reference to figure: Figure~\ref{penG} shows that it is not easy to get something on paper. Note that figures will be in grayscale in the printed version.
+Sample of cross-reference to figure: Figure~\ref{penG} shows that it is not easy to get something on paper. Note that figures will be in grayscale in the printed version.  Color should not be mentioned in caption or text. 
 \begin{table*}
 \caption{The spherical case ($I_1=0$, $I_2=0$).}
 \label{sphericcase}
@@ -360,9 +362,7 @@ $L_{10}$ & 1.472523232    & 1.393484549    & $-$0.083801333 & 6.733436505    & U
 $L_{11}$ & 1.472523232    & $-$1.393484549 & $-$0.083801333 & 6.733436505    & U \\
 \hline
 \end{tabular}
-\legend{This is how table note should be presented.
-Please do not use asterisks or bold face to denote statistical significance.
-We encourage authors to report standard errors and coverage sets or confidence intervals.}
+\legend{This is how a table note should be presented, not as part of the table title. Please do not use asterisks or bold face to denote statistical significance. We encourage authors to report standard errors and coverage sets or confidence intervals.}
 
 \end{table*}
 
@@ -398,11 +398,17 @@ Model
 \end{table}
 
 \begin{figure}
-\includegraphics{figure_sample}
-\caption{The dotted lines show the values of
-$u(x)$ for $x$ in the discrete support of $F$. The solid lines show $u_\textrm{conv}(x)$.}
+\includegraphics{sample1}
+\caption{The typesetter will convert the figures to grayscale for the print version, so please use dashed/dotted lines or symbols where possible and avoid referring to colors in the text and the figure caption.  Numbers less than zero should have a leading zero in front of the decimal point. Note(s) should be added to the figure caption. }
 \label{penG}
 \end{figure}
+
+\begin{figure}
+\includegraphics{sample2}
+\caption{Grouped bar charts can use patterns.}
+\label{penG}
+\end{figure}
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -410,7 +416,7 @@ $u(x)$ for $x$ in the discrete support of $F$. The solid lines show $u_\textrm{c
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{appendix}
 \section*{Title}\label{appn} %% if no title is needed, leave empty \section*{}.
-Appendices should be provided in \verb|{appendix}| environment. If there is only one appendix,
+These notes apply to an Appendix within the paper, not a Supplemental Appendix. Appendices should be provided in \verb|{appendix}| environment. If there is only one appendix,
 then please refer to it in text as \ldots\ in the \hyperref[appn]{Appendix}.
 \end{appendix}
 
@@ -441,43 +447,53 @@ Note that it is better to refer to Appendix \ref{appB1} as opposed to Appendix \
 %% including the first and last names, and date of publication.
 
 %% If your bibliography is in bibtex format, uncomment commands:
-%\bibliographystyle{ecta-fullname} % Style BST file
+%\bibliographystyle{econsoc} % Style BST file
 %\bibliography{bibliography}  % Bibliography file (usually '*.bib')
 
 %% Or include bibliography directly:
 
 \begin{thebibliography}{}
-%
+
 \bibitem[\protect\citeauthoryear{Aumann}{1987}]{b1}
-\textsc{Aumann, Robert} (1987):
-``Correlated Equilibrium as an Expression of Bayesian Rationality,''
+Aumann, Robert (1987),
+``Correlated Equilibrium as an Expression of Bayesian Rationality.''
 \textit{Econometrica}, 55 (1), 1--18.
 \endbibitem
 
-\bibitem[\protect\citeauthoryear{Peck}{1994}]{b2}
-\textsc{Peck, James} (1994):
-``Competition in Transactions Mechanisms: The Emergence of Competition,''
-Unpublished Manuscript, Ohio State University.
+\bibitem[\protect\citeauthoryear{Cahuc, Postel-Vinay and Robin}{2006}]{b2}
+Cahuc, Pierre, Fabien Postel-Vinay, and Jean-Marc Robin (2006), ``Supplement to `Wage Bargaining with On-the-Job Search: Theory and Evidence'.''
+\textit{Econometrica Supplementary Material}, 74.
 \endbibitem
 
 \bibitem[\protect\citeauthoryear{Enelow and Hinich}{1990}]{b3}
-\textsc{Enelow, James, and Melvin Hinich}, eds. (1990):
+Enelow, James, and Melvin Hinich, eds. (1990),
 \textit{Advances in the Spatial Theory of Voting}.
-Cambridge, U.K.: Cambridge University Press.
+Cambridge University Press, Cambridge, U.K. 
 \endbibitem
 
-\bibitem[\protect\citeauthoryear{Wittman}{1990}]{b4}
-\textsc{Wittman, Donald} (1990):
-``Spatial Strategies when Candidates Have Policy Preferences,''
-in \textit{Advances in the Spatial Theory of Voting},
-ed. by M. Hinich and J. Enelow.
-Cambridge, U.K.: Cambridge University Press, 66--98.
+\bibitem[\protect\citeauthoryear{\xcitelabel{HNPS+}}{2023}]{b4}
+Horta\c{c}su, Ali, Olivia~R. Natan, Hayden Parsley, Timothy Schwieg, and Kevin~R. Williams (2023),
+``Demand Estimation with Infrequent Purchases and Small Market Sizes.''
+\textit{Quantitative Economics}, 14 (4), 1251--1294.
 \endbibitem
 
-\bibitem[\protect\citeauthoryear{Cahuc, Postel-Vinay and Robin}{2006}]{b5}
-\textsc{Cahuc, Pierre, Fabien Postel-Vinay, and Jean-Marc Robin} (2006): ``Supplement to `Wage Bargaining with On-the-Job Search: Theory and Evidence',''
-\textit{Econometrica Supplementary Material}, 74.
+
+\bibitem[\protect\citeauthoryear{Peck}{1994}]{b5}
+Peck, James (1994),
+``Competition in Transactions Mechanisms: The Emergence of Competition.''
+Unpublished Manuscript, Ohio State University.
 \endbibitem
+
+
+\bibitem[\protect\citeauthoryear{Wittman}{1990}]{b6}
+Wittman, Donald (1990),
+``Spatial Strategies when Candidates Have Policy Preferences.''
+In \textit{Advances in the Spatial~Theory of Voting}
+(Melvin Hinich and James Enelow, eds.), 66--98,
+Cambridge University Press, Cambridge, U.K.
+\endbibitem
+
+
 \end{thebibliography}
 
 \end{document}

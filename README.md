@@ -24,8 +24,8 @@ The following files are given in the repository (or directly in `.zip` archive):
 -   `ecta_supp_sample.pdf` - sample file and instructions for the preparation of a
     supplementary material in LaTeX;
 -   `ecta_supp_sample.tex` - source file for the instructions paper `ecta_supp_sample.pdf`;
--   `figure_sample.eps`, `figure_sample.pdf` - sample figures for `ecta_sample.pdf`.
--   `ecta-fullname.bst` - BibTeX styles to prepare bibliography file.
+-   `sample1.eps`, `sample2.eps`, `sample1.pdf`, `sample2.pdf` - sample figures for `ecta_sample.pdf`.
+-   `econsoc.bst` - BibTeX styles to prepare bibliography file.
     More information can be found [here](http://www.bibtex.org/Using/) 
     or [here](https://www.latex-tutorial.com/tutorials/bibtex/).
 

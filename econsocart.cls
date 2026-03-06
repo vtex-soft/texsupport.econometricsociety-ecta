@@ -20,7 +20,7 @@
 %% (LPPL), version 1.3c or any later version.
 %%
 \NeedsTeXFormat{LaTeX2e}[2000/06/01]
-\ProvidesClass{econsocart}[2025/03/07 v1.4.20, The Econometric Society Journals]
+\ProvidesClass{econsocart}[2026/02/12 v1.4.25, The Econometric Society Journals]
 % 
 \RequirePackage{etoolbox}
 % 
@@ -722,6 +722,11 @@
         \def\@eqnnum{{\normalfont\upshape \normalcolor (\theequation)}}
     \fi
 \fi
+\ifnum\jobstart@date@info>20250824\relax
+    \ifdefined\noaccents@
+        \noaccents@
+    \fi
+\fi
 %
 % dummy hack to add text to number (todo: is it needed?)
 \def\eqntext#1{\global\let\curr@eqnnum\@eqnnum
@@ -778,11 +783,10 @@
                 \itshape
             \fi
         \fi
-        \csuse{corthmlist@addons}%
     }%
     {\econsocart@thm@indent}%
     {\scshape}%
-    {\ifecta@layout:\else.\fi\csuse{corthmlist@head@pos}}%
+    {\ifecta@layout:\else.\fi}%
     {\thm@space@after}%
     {%
         \thmname{#1}%
@@ -792,10 +796,10 @@
 \newtheoremstyle{definition}%
     {\medskipamount}%
     {\medskipamount}%
-    {\upshape \csuse{corthmlist@addons}}%
+    {\upshape}%
     {\econsocart@thm@indent}%
     {\scshape}%
-    {\ifecta@layout:\else.\fi\csuse{corthmlist@head@pos}}%
+    {\ifecta@layout:\else.\fi}%
     {\thm@space@after}%
     {%
         \thmname{#1}%
@@ -1572,12 +1576,13 @@
 \fi
 \def\copyrightline@skip{\z@}
 \let\econsocart@styledata@noexpand\noexpand
+\def\default@copyright@holder{The Author\ifnum\c@author>1s\fi}
 \ifecta@layout
     \def\license@type{???license@type???}
     \csdef{license@???license@type???@licencetype}{???}
     \csdef{license@???license@type???@licencetypetext}{???}
-    \def\ecta@oa@published@text{ Econometrica published by John Wiley \&
-            Sons Ltd on behalf of The Econometric Society}%
+    \def\ecta@oa@published@text{ Econometrica published by Wiley Periodicals LLC 
+            on behalf of The Econometric Society}%
     \def\license@CC@BY@NC@licencetype{creativeCommonsBy-nc}
     \def\license@CC@BY@NC@licencetypetext{This is an open access article under the terms of the 
         \econsocart@styledata@noexpand\href{https://creativecommons.org/licenses/by-nc/4.0/}%
@@ -1640,7 +1645,7 @@
                     }%
                 \ifcsundef{copyright@holder}%
                     {%
-                        \textcopyright\ \the\@copyear\ The Author\ifnum\c@author>1s\fi.%
+                        \textcopyright\ \the\@copyear\ \default@copyright@holder.%
                         \ecta@oa@published@text.
                     }%
                     {%
@@ -1813,7 +1818,7 @@
             {%
                 {\fontfamily{ptm}\selectfont\textcopyright}\ 
                 \the\@copyear\ 
-                The Author\ifnum\c@author>1 s\fi. \csuse{license@\license@type @licencetypetext}%
+                \default@copyright@holder. \csuse{license@\license@type @licencetypetext}%
                 \break
             }%
             {\csuse{copyright@\copyright@holder @holdertext}\\}%
@@ -2010,13 +2015,8 @@
         \xdef\xml@authorcopyrightline{\noexpand\copyright\ 
             \the\@copyear\space The Econometric Society}%
     \else
-        \ifnum\c@author>\@ne
-            \xdef\xml@authorcopyrightline{\noexpand\copyright\ 
-                \the\@copyear\space The Authors.}%
-        \else
-            \xdef\xml@authorcopyrightline{\noexpand\copyright\ 
-                \the\@copyear\space The Author.}%
-        \fi
+        \xdef\xml@authorcopyrightline{\noexpand\copyright\ 
+            \the\@copyear\space\default@copyright@holder.}
     \fi
     \ifecta@layout
         \ifcsundef{copyright@holder}%
@@ -2774,18 +2774,36 @@
             \fi
             \history@postfix\par
             \@ifundefined{replication@statement}%
+                {}%
                 {%
-                    \csuse{econsocart@printhistory@error@output}%
+                    \bgroup
+                        \vskip\baselineskip
+                        \ifecta@layout
+                            \rightskip=\z@
+                            \leftskip=\rightskip
+                            \parfillskip=\z@ \@plus 1fil
+                            \parindent=\sv@parindent
+                        \else
+                            \noindent
+                        \fi
+                        \csuse{econsocart@replication@statement@position}%
+                        \replication@statement
+                        \par
+                    \egroup
                 }%
+            \@ifundefined{responsibility@statement}%
+                {}%
                 {%
                     \vskip\baselineskip
                     \ifecta@layout
-                        \parindent=\sv@parindent
                     \else
                         \noindent
                     \fi
-                    \replication@statement
+                    \csuse{econsocart@responsibility@statement@position}%
+                    \responsibility@statement
+                    \par
                 }%
+            \csuse{econsocart@printhistory@error@output}%
         \egroup
         \gdef\history@exist{0}%
     \fi
